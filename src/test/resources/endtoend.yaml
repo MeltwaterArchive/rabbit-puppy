@@ -1,0 +1,47 @@
+users:
+    test_dan:
+        admin: true
+        password: torrance
+
+vhosts:
+    test:
+        tracing: true
+
+permissions:
+    test_dan@test:
+        configure: .*
+        write: .*
+        read: .*
+
+exchanges:
+    exchange.in@test:
+        type: topic
+        durable: false
+        auto_delete: true
+        internal: true
+        arguments:
+            hash-header: abc
+    exchange.out@test:
+        type: direct
+
+queues:
+    queue-test@test:
+        durable: false
+        auto_delete: true
+        arguments:
+            x-message-ttl: 123
+
+bindings:
+    exchange.in@test:
+      - destination: queue-test
+        destination_type: queue
+        routing_key: route-queue
+        arguments:
+            foo: bar
+      - destination: exchange.out
+        destination_type: exchange
+        routing_key: route-exchange
+        arguments:
+            cat: dog
+
+

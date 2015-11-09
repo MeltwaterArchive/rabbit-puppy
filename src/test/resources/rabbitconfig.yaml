@@ -1,0 +1,63 @@
+users:
+    test_dan:
+        admin: true
+        password: torrance
+    test_jack:
+        password: bauer
+
+vhosts:
+    input:
+        tracing: true
+    output:
+        tracing: false
+    test:
+
+permissions:
+    test_dan@input:
+        configure: .*
+        write: .*
+        read: .*
+    test_dan@output:
+        configure: .*
+        write: .*
+        read: .*
+
+exchanges:
+    exchange.in@input:
+        type: topic
+        durable: false
+        auto_delete: true
+        internal: true
+        arguments:
+            hash-header: abc
+    exchange.out@output:
+        type: fanout
+    exchange.out.direct@output:
+        type: direct
+
+queues:
+    queue-in@input:
+        durable: false
+        auto_delete: true
+        arguments:
+            x-message-ttl: 123
+            x-dead-letter-exchange: other
+    queue-out@output:
+        arguments:
+
+bindings:
+    exchange.in@input:
+      - destination: queue-in
+        destination_type: queue
+        routing_key: "#"
+        arguments:
+            foo: bar
+    exchange.out@output:
+      - destination: queue-out
+        destination_type: queue
+        routing_key: ""
+      - destination: exchange.out.direct
+        destination_type: exchange
+        routing_key: "#"
+
+

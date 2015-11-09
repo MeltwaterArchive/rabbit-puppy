@@ -1,0 +1,50 @@
+users:
+    dan:
+        BADPROPERTY: true
+        password: torrance
+    ultron:
+        admin: false
+    jack:
+        password: bauer
+    ali:
+
+vhosts:
+    - input
+    - output
+
+permissions:
+    dan@input:
+        configure: .*
+        write: .*
+        read: .*
+    dan@output:
+        configure: .*
+        write: .*
+        read: .*
+
+exchanges:
+    exchange.in@input:
+        type: topic
+        durable: false
+        auto_delete: true
+        internal: true
+        arguments:
+            hash-header: abc
+    exchange.out@output:
+        type: fanout
+
+queues:
+    queue-in@input:
+        durable: false
+        auto_delete: true
+        arguments:
+            x-message-ttl: 123
+            x-dead-letter-exchange: other
+    queue-out@output:
+        arguments:
+
+bindings:
+    exchange.in@queue-in@input:
+        destination: queue
+        routing_key: "#"
+    exchange.out@queue-out@output:
