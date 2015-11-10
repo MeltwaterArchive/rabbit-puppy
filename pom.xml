@@ -144,6 +144,7 @@
                         </goals>
                         <configuration>
                             <minimizeJar>false</minimizeJar>
+                            <finalName>${project.build.finalName}-standalone</finalName>
                         </configuration>
                     </execution>
                 </executions>
@@ -222,7 +223,7 @@
                                     <mode>dir</mode>
                                     <inline>
                                         <file>
-                                            <source>${project.build.directory}/${project.build.finalName}.jar</source>
+                                            <source>${project.build.directory}/${project.build.finalName}-standalone.jar</source>
                                             <destName>rabbit-puppy.jar</destName>
                                         </file>
                                     </inline>
