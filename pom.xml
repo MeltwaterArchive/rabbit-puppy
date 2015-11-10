@@ -85,6 +85,27 @@
         </dependency>
     </dependencies>
 
+    <!-- TODO Publish to jCenter -->
+    <distributionManagement>
+        <repository>
+            <id>meltwater-releases</id>
+            <name>meltwater-releases</name>
+            <url>http://maven.meltwater.net/nexus/content/repositories/releases/</url>
+            <uniqueVersion>true</uniqueVersion>
+        </repository>
+        <snapshotRepository>
+            <id>meltwater-snapshots</id>
+            <name>meltwater-snapshots</name>
+            <url>http://maven.meltwater.net/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <scm>
+        <developerConnection>scm:git:git@github.com:meltwater/rabbit-puppy.git</developerConnection>
+        <connection>scm:git:git@github.com:meltwater/rabbit-puppy.git</connection>
+        <url>https://github.com/meltwater/rabbit-puppy</url>
+    </scm>
+
     <build>
         <plugins>
             <plugin>
