@@ -7,11 +7,15 @@ import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.glassfish.jersey.client.JerseyInvocation;
 import org.glassfish.jersey.client.JerseyWebTarget;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class RestRequestBuilder {
+
+    private static final Logger log = LoggerFactory.getLogger(RestRequestBuilder.class);
 
     private String host = null;
     private String authUser = null;
@@ -49,7 +53,9 @@ public class RestRequestBuilder {
     }
 
     public JerseyInvocation.Builder request(String path) {
-        return addProperties(client.target(hostAnd(path))).request();
+        String url = hostAnd(path);
+        log.trace("Building request to " + url);
+        return addProperties(client.target(url)).request();
     }
 
     public JerseyInvocation.Builder request(String path, Map<String, String> routeParams) {

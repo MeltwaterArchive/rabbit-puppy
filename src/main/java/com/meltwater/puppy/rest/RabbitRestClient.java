@@ -7,12 +7,12 @@ import com.meltwater.puppy.config.PermissionsData;
 import com.meltwater.puppy.config.QueueData;
 import com.meltwater.puppy.config.UserData;
 import com.meltwater.puppy.config.VHostData;
-import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,7 +52,7 @@ public class RabbitRestClient {
     public boolean ping() {
         try {
             Response response = requestBuilder.request(PATH_OVERVIEW).get();
-            return response.getStatus() == HttpStatus.SC_OK;
+            return response.getStatus() == Status.OK.getStatusCode();
         } catch (Exception e) {
             return false;
         }
@@ -62,13 +62,13 @@ public class RabbitRestClient {
         expect(requestBuilder
                         .request(PATH_VHOSTS_SINGLE, of("vhost", virtualHost))
                         .put(entity(gson.toJson(vHostData), MediaType.APPLICATION_JSON_TYPE)),
-                HttpStatus.SC_NO_CONTENT);
+                Status.NO_CONTENT.getStatusCode());
     }
 
     public Map<String, VHostData> getVirtualHosts() throws RestClientException {
         return parser.vhosts(
                 expect(requestBuilder.request(PATH_VHOSTS).get(),
-                        HttpStatus.SC_OK));
+                        Status.OK.getStatusCode()));
     }
 
     public void createUser(String user, UserData userData) throws RestClientException {
@@ -80,13 +80,13 @@ public class RabbitRestClient {
                                 "password", userData.getPassword(),
                                 "tags", userData.isAdmin() ? "administrator" : ""
                         )), MediaType.APPLICATION_JSON_TYPE)),
-                HttpStatus.SC_NO_CONTENT);
+                Status.NO_CONTENT.getStatusCode());
     }
 
     public Map<String, UserData> getUsers() throws RestClientException {
         return parser.users(
                 expect(requestBuilder.request(PATH_USERS).get(),
-                        HttpStatus.SC_OK));
+                        Status.OK.getStatusCode()));
     }
 
     public void createPermissions(String user, String vhost, PermissionsData permissionsData) throws RestClientException {
@@ -99,13 +99,13 @@ public class RabbitRestClient {
                                 "vhost", vhost,
                                 "user", user))
                         .put(entity(gson.toJson(permissionsData), MediaType.APPLICATION_JSON_TYPE)),
-                HttpStatus.SC_NO_CONTENT);
+                Status.NO_CONTENT.getStatusCode());
     }
 
     public Map<String, PermissionsData> getPermissions() throws RestClientException {
         return parser.permissions(
                 expect(requestBuilder.request(PATH_PERMISSIONS).get(),
-                        HttpStatus.SC_OK));
+                        Status.OK.getStatusCode()));
     }
 
     public void createExchange(String vhost,
@@ -121,7 +121,7 @@ public class RabbitRestClient {
                                 "vhost", vhost,
                                 "exchange", exchange))
                         .put(entity(gson.toJson(exchangeData), MediaType.APPLICATION_JSON_TYPE)),
-                HttpStatus.SC_NO_CONTENT);
+                Status.NO_CONTENT.getStatusCode());
     }
 
     public Optional<ExchangeData> getExchange(String vhost,
@@ -135,8 +135,8 @@ public class RabbitRestClient {
                                         "vhost", vhost,
                                         "exchange", exchange))
                                 .get(),
-                        HttpStatus.SC_OK,
-                        HttpStatus.SC_NOT_FOUND));
+                        Status.OK.getStatusCode(),
+                        Status.NOT_FOUND.getStatusCode()));
     }
 
     public void createQueue(String vhost, String queue,
@@ -149,7 +149,7 @@ public class RabbitRestClient {
                                 "vhost", vhost,
                                 "queue", queue))
                         .put(entity(gson.toJson(queueData), MediaType.APPLICATION_JSON_TYPE)),
-                HttpStatus.SC_NO_CONTENT);
+                Status.NO_CONTENT.getStatusCode());
     }
 
     public Optional<QueueData> getQueue(String vhost,
@@ -163,8 +163,8 @@ public class RabbitRestClient {
                                         "vhost", vhost,
                                         "queue", queue))
                                 .get(),
-                        HttpStatus.SC_OK,
-                        HttpStatus.SC_NOT_FOUND));
+                        Status.OK.getStatusCode(),
+                        Status.NOT_FOUND.getStatusCode()));
     }
 
     public void createBinding(String vhost,
@@ -187,7 +187,7 @@ public class RabbitRestClient {
                                             "routing_key", bindingData.getRouting_key(),
                                             "arguments", bindingData.getArguments())),
                                     MediaType.APPLICATION_JSON_TYPE)),
-                    HttpStatus.SC_CREATED);
+                    Status.CREATED.getStatusCode());
         } else if (bindingData.getDestination_type().equals("exchange")) {
             expect(requestBuilder
                             .nextWithAuthentication(user, pass)
@@ -199,7 +199,7 @@ public class RabbitRestClient {
                                             "routing_key", bindingData.getRouting_key(),
                                             "arguments", bindingData.getArguments())),
                                     MediaType.APPLICATION_JSON_TYPE)),
-                    HttpStatus.SC_CREATED);
+                    Status.CREATED.getStatusCode());
         } else {
             throw new RestClientException(format("Invalid binding destination: %s", bindingData.getDestination()));
         }
@@ -214,7 +214,7 @@ public class RabbitRestClient {
                                 .request(PATH_BINDINGS_VHOST, of(
                                         "vhost", vhost))
                                 .get(),
-                        HttpStatus.SC_OK));
+                        Status.OK.getStatusCode()));
     }
 
     public String getUsername() {

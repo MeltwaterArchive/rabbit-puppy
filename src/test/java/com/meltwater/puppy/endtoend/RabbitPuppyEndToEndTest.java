@@ -1,4 +1,4 @@
-package com.meltwater.puppy.external;
+package com.meltwater.puppy.endtoend;
 
 import com.google.gson.Gson;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
@@ -22,7 +22,7 @@ import static com.meltwater.puppy.rest.RabbitRestClient.PATH_USERS_SINGLE;
 import static com.meltwater.puppy.rest.RabbitRestClient.PATH_VHOSTS_SINGLE;
 
 @RunWith(JunitSuiteRunner.class)
-public class RabbitPuppyEndToEndSpec {
+public class RabbitPuppyEndToEndTest {
     {
         final Properties properties = new Properties() {{
             try {
@@ -38,6 +38,8 @@ public class RabbitPuppyEndToEndSpec {
         final String brokerUser = properties.getProperty("rabbit.broker.user");
         final String brokerPass = properties.getProperty("rabbit.broker.pass");
 
+        final String VHOST = "endtoend";
+
         final RestRequestBuilder req = new RestRequestBuilder()
                 .withHost(brokerAddress)
                 .withAuthentication(brokerUser, brokerPass)
@@ -47,31 +49,37 @@ public class RabbitPuppyEndToEndSpec {
 
         describe("a rabbit-puppy with configuration and external rabbit", it -> {
 
-            it.isSetupWith(() -> Main.main(new String[]{
+            it.isSetupWith(() -> Main.run(new String[]{
                     "--broker", brokerAddress,
                     "--user", brokerUser,
                     "--pass", brokerPass,
                     "--config", configPath}));
 
             it.isConcludedWith(() -> {
-                req.request(PATH_VHOSTS_SINGLE, of("vhost", "test")).delete();
+                req.request(PATH_VHOSTS_SINGLE, of("vhost", VHOST)).delete();
                 req.request(PATH_USERS_SINGLE, of("user", "test_dan")).delete();
             });
 
             it.should("create vhost", expect -> {
-                Map map = gson.fromJson(getString(req, PATH_VHOSTS_SINGLE, of("vhost", "test")), Map.class);
+                Map map = gson.fromJson(getString(req, PATH_VHOSTS_SINGLE, of(
+                                "vhost", VHOST)),
+                        Map.class);
 
-                expect.that(map.get("name")).is("test");
+                expect.that(map.get("name")).is(VHOST);
             });
 
             it.should("creates user", expect -> {
-                Map map = gson.fromJson(getString(req, PATH_USERS_SINGLE, of("user", "test_dan")), Map.class);
+                Map map = gson.fromJson(getString(req, PATH_USERS_SINGLE, of(
+                                "user", "test_dan")),
+                        Map.class);
 
                 expect.that(map.get("tags")).is("administrator");
             });
 
             it.should("creates permissions", expect -> {
-                Map map = gson.fromJson(getString(req, PATH_PERMISSIONS_SINGLE, of("vhost", "test", "user", "test_dan")),
+                Map map = gson.fromJson(getString(req, PATH_PERMISSIONS_SINGLE, of(
+                                "vhost", VHOST,
+                                "user", "test_dan")),
                         Map.class);
 
                 expect
@@ -82,10 +90,12 @@ public class RabbitPuppyEndToEndSpec {
 
             it.should("creates exchange 'exchange.in@test'", expect -> {
                 Map map = gson.fromJson(getString(
-                        req.nextWithAuthentication("test_dan", "torrance"),
-                        PATH_EXCHANGES_SINGLE,
-                        of("exchange", "exchange.in", "vhost", "test")
-                ), Map.class);
+                                req.nextWithAuthentication("test_dan", "torrance"),
+                                PATH_EXCHANGES_SINGLE,
+                                of(
+                                        "exchange", "exchange.in",
+                                        "vhost", VHOST)),
+                        Map.class);
 
                 expect.that(map.get("type")).is("topic")
                         .and(map.get("durable")).is(false)
@@ -97,10 +107,12 @@ public class RabbitPuppyEndToEndSpec {
 
             it.should("creates exchange 'exchange.out@test'", expect -> {
                 Map map = gson.fromJson(getString(
-                        req.nextWithAuthentication("test_dan", "torrance"),
-                        PATH_EXCHANGES_SINGLE,
-                        of("exchange", "exchange.out", "vhost", "test")
-                ), Map.class);
+                                req.nextWithAuthentication("test_dan", "torrance"),
+                                PATH_EXCHANGES_SINGLE,
+                                of(
+                                        "exchange", "exchange.out",
+                                        "vhost", VHOST)),
+                        Map.class);
 
                 expect.that(map.get("type")).is("direct")
                         .and(map.get("durable")).is(true)
@@ -111,10 +123,12 @@ public class RabbitPuppyEndToEndSpec {
 
             it.should("creates queue", expect -> {
                 Map map = gson.fromJson(getString(
-                        req.nextWithAuthentication("test_dan", "torrance"),
-                        PATH_QUEUES_SINGLE,
-                        of("queue", "queue-test", "vhost", "test")
-                ), Map.class);
+                                req.nextWithAuthentication("test_dan", "torrance"),
+                                PATH_QUEUES_SINGLE,
+                                of(
+                                        "queue", "queue-test",
+                                        "vhost", VHOST)),
+                        Map.class);
 
                 expect.that(map.get("durable")).is(false)
                         .and(map.get("auto_delete")).is(true)
@@ -124,12 +138,13 @@ public class RabbitPuppyEndToEndSpec {
 
             it.should("creates binding to queue", expect -> {
                 Map map = (Map) gson.fromJson(getString(
-                        req.nextWithAuthentication("test_dan", "torrance"),
-                        PATH_BINDING_QUEUE,
-                        of("exchange", "exchange.in",
-                                "to", "queue-test",
-                                "vhost", "test")
-                ), List.class).get(0);
+                                req.nextWithAuthentication("test_dan", "torrance"),
+                                PATH_BINDING_QUEUE,
+                                of(
+                                        "exchange", "exchange.in",
+                                        "to", "queue-test",
+                                        "vhost", VHOST)),
+                        List.class).get(0);
 
                 expect.that(map.get("routing_key")).is("route-queue")
                         .and(((Map) map.get("arguments")).size()).is(1)
@@ -138,12 +153,13 @@ public class RabbitPuppyEndToEndSpec {
 
             it.should("creates binding to exchange", expect -> {
                 Map map = (Map) gson.fromJson(getString(
-                        req.nextWithAuthentication("test_dan", "torrance"),
-                        PATH_BINDING_EXCHANGE,
-                        of("exchange", "exchange.in",
-                                "to", "exchange.out",
-                                "vhost", "test")
-                ), List.class).get(0);
+                                req.nextWithAuthentication("test_dan", "torrance"),
+                                PATH_BINDING_EXCHANGE,
+                                of(
+                                        "exchange", "exchange.in",
+                                        "to", "exchange.out",
+                                        "vhost", VHOST)),
+                        List.class).get(0);
 
                 expect.that(map.get("routing_key")).is("route-exchange")
                         .and(((Map) map.get("arguments")).size()).is(1)

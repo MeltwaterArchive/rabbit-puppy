@@ -23,7 +23,7 @@ import static com.meltwater.puppy.rest.RabbitRestClient.PATH_VHOSTS_SINGLE;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 @RunWith(JunitSuiteRunner.class)
-public class RabbitRestClientSpec {
+public class RabbitRestClientTest {
     {
         final Properties properties = new Properties() {{
             try {

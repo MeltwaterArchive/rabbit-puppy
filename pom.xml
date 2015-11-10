@@ -10,6 +10,10 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
+        <!-- For now, also update scr/test/resources/test.properties to match these -->
+        <docker.rabbit.host>localhost</docker.rabbit.host>
+        <docker.rabbit.port>15673</docker.rabbit.port>
+
         <slf4j.version>1.6.4</slf4j.version>
         <logback.version>1.0.1</logback.version>
     </properties>
@@ -37,11 +41,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>18.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.api-client</groupId>
-            <artifactId>google-api-client</artifactId>
-            <version>1.20.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -145,23 +144,108 @@
                     </includes>
                 </configuration>
             </plugin>
-	    <plugin>
-	      <groupId>com.spotify</groupId>
-	      <artifactId>docker-maven-plugin</artifactId>
-	      <version>0.3.5</version>
-	      <configuration>
-	        <imageName>rabbit-puppy</imageName>
-	        <baseImage>java</baseImage>
-	        <!-- copy the service's jar file from target into the root directory of the image --> 
-	        <resources>
-	           <resource>
-	             <targetPath>/</targetPath>
-	             <directory>${project.build.directory}</directory>
-	             <include>${project.build.finalName}.jar</include>
-	           </resource>
-	        </resources>
-	      </configuration>
-	    </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.19</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jolokia</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.13.6</version>
+                <configuration>
+                    <images>
+                        <image>
+                            <!-- rabbitmq-broker image to run during integration-test -->
+                            <name>rabbitmq:management</name>
+                            <alias>rabbit</alias>
+                            <run>
+                                <ports>
+                                    <port>${docker.rabbit.port}:15672</port>
+                                </ports>
+                                <wait>
+                                    <http>
+                                        <url>http://${docker.rabbit.host}:${docker.rabbit.port}</url>
+                                        <method>GET</method>
+                                        <status>200..399</status>
+                                    </http>
+                                    <time>20000</time>
+                                    <shutdown>1000</shutdown>
+                                    <exec>
+                                        <!-- To make sure broker is started as well -->
+                                        <postStart>sleep 3</postStart>
+                                    </exec>
+                                </wait>
+                            </run>
+                        </image>
+                        <image>
+                            <!-- rabbit-puppy docker image to build -->
+                            <name>meltwater/${project.artifactId}:latest</name>
+                            <build>
+                                <from>java:latest</from>
+                                <assembly>
+                                    <basedir>/</basedir>
+                                    <mode>dir</mode>
+                                    <inline>
+                                        <file>
+                                            <source>${project.build.directory}/${project.build.finalName}.jar</source>
+                                            <destName>rabbit-puppy.jar</destName>
+                                        </file>
+                                    </inline>
+                                </assembly>
+                                <entryPoint>
+                                    <arg>java</arg>
+                                    <arg>-jar</arg>
+                                    <arg>/rabbit-puppy.jar</arg>
+                                </entryPoint>
+                            </build>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>docker-build</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>docker-start</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>docker-stop</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>docker-push</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>push</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>

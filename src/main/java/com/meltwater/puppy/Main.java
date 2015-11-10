@@ -46,7 +46,13 @@ public class Main {
         private int wait = 0;
     }
 
-    public static void main(String[] argv) throws IOException {
+    public static void main(String[] argv) {
+        if (!run(argv)) {
+            System.exit(1);
+        }
+    }
+
+    public static boolean run(String[] argv) {
         Arguments arguments = parseArguments("rabbit-puppy", argv);
         log.info("Reading configuration from " + arguments.configPath);
         try {
@@ -56,12 +62,13 @@ public class Main {
                 rabbitPuppy.waitForBroker(arguments.wait);
             }
             rabbitPuppy.apply(rabbitConfig);
+            return true;
         } catch (RabbitConfigException e) {
             log.error("Failed to read configuration, exiting");
-            System.exit(1);
+            return false;
         } catch (RabbitPuppyException e) {
             log.error(String.format("Encountered %d errors, exiting", e.getErrors().size()));
-            System.exit(1);
+            return false;
         }
     }
 
