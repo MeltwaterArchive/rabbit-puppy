@@ -206,10 +206,7 @@
                                     </http>
                                     <time>20000</time>
                                     <shutdown>1000</shutdown>
-                                    <exec>
-                                        <!-- To make sure broker is started as well -->
-                                        <postStart>sleep 3</postStart>
-                                    </exec>
+                                
                                 </wait>
                             </run>
                         </image>
