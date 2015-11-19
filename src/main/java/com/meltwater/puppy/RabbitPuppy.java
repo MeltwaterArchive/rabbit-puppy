@@ -217,7 +217,7 @@ public class RabbitPuppy {
                 final Auth auth = authForResource(config.getUsers(), config.getPermissions(), vhost, queue);
                 try {
                     Optional<QueueData> existing = client.getQueue(vhost, queue, auth.getUser(), auth.getPass());
-                    ensurePresent("exchange", name, data, existing, errors, () -> {
+                    ensurePresent("queue", name, data, existing, errors, () -> {
                         log.info(format("Creating queue %s at vhost %s with configuration %s", queue, vhost, data));
                         client.createQueue(vhost, queue, data, auth.getUser(), auth.getPass());
                     });
@@ -226,7 +226,7 @@ public class RabbitPuppy {
                     errors.add(e);
                 }
             } else {
-                String error = format("Invalid exchange format '%s', should be exchange@vhost", name);
+                String error = format("Invalid queue format '%s', should be queue@vhost", name);
                 log.error(error);
                 errors.add(new RabbitConfigException(error));
             }
