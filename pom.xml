@@ -13,6 +13,7 @@
         <!-- For now, also update scr/test/resources/test.properties to match these -->
         <docker.rabbit.host>localhost</docker.rabbit.host>
         <docker.rabbit.port>15673</docker.rabbit.port>
+        <docker.version>latest</docker.version>
 
         <slf4j.version>1.6.4</slf4j.version>
         <logback.version>1.0.1</logback.version>
@@ -207,7 +208,7 @@
                         </image>
                         <image>
                             <!-- rabbit-puppy docker image to build -->
-                            <name>meltwater/${project.artifactId}:latest</name>
+                            <name>meltwater/${project.artifactId}:${docker.version}</name>
                             <build>
                                 <from>java:latest</from>
                                 <assembly>
