@@ -7,7 +7,7 @@
 
     <groupId>com.meltwater.puppy</groupId>
     <artifactId>rabbit-puppy</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0-SNAPSHOT</version>
 
     <properties>
         <!-- For now, also update scr/test/resources/test.properties to match these -->
