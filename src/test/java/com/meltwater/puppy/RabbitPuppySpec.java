@@ -9,6 +9,7 @@ import com.meltwater.puppy.config.RabbitConfig;
 import com.meltwater.puppy.config.UserData;
 import com.meltwater.puppy.config.VHostData;
 import com.meltwater.puppy.rest.RabbitRestClient;
+import kotlin.Unit;
 import org.junit.runner.RunWith;
 
 import java.util.HashMap;
@@ -18,9 +19,12 @@ import java.util.function.Function;
 import static com.google.common.collect.ImmutableMap.of;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.insightfullogic.lambdabehave.Suite.describe;
+import static com.meltwater.puppy.config.RabbitConfig.Companion;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static kotlin.Unit.INSTANCE;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -58,7 +62,10 @@ public class RabbitPuppySpec {
             final VHostData VHOST_DATA = new VHostData(true);
 
             RabbitPuppy puppy = new RabbitPuppy(rabbitRestClient);
-            RabbitConfig rabbitConfig = new RabbitConfig().addVhost(VHOST, VHOST_DATA);
+            RabbitConfig rabbitConfig = new RabbitConfig().add(Companion.vhost(VHOST, vHostData -> {
+                vHostData.setTracing(true);
+                return INSTANCE;
+            }));
 
             it.should("creates vhost if it doesn't exist", expect -> {
                 when(rabbitRestClient.getVirtualHosts())
@@ -84,7 +91,7 @@ public class RabbitPuppySpec {
 
             it.should("throw exception if vhosts exists with different config", expect -> {
                 when(rabbitRestClient.getVirtualHosts())
-                        .thenReturn(of(VHOST, new VHostData(!VHOST_DATA.isTracing())));
+                        .thenReturn(of(VHOST, new VHostData(!VHOST_DATA.getTracing())));
 
                 expect.exception(RabbitPuppyException.class, () -> puppy.apply(rabbitConfig));
 
@@ -96,8 +103,7 @@ public class RabbitPuppySpec {
         describe("a rabbit-puppy configured to create a user", it -> {
 
             UserData data = new UserData();
-            RabbitConfig rabbitConfig = new RabbitConfig()
-                    .addUser("dan", data);
+            RabbitConfig rabbitConfig = new RabbitConfig().add(Companion.user("dan", u -> INSTANCE));
             RabbitPuppy puppy = new RabbitPuppy(rabbitRestClient);
 
             it.should("create it if it doesn't exist", expect -> {
@@ -132,8 +138,7 @@ public class RabbitPuppySpec {
         describe("a rabbit-puppy configured to create permissions", it -> {
 
             PermissionsData data = new PermissionsData();
-            RabbitConfig rabbitConfig = new RabbitConfig()
-                    .addPermissions("dan", "test", data);
+            RabbitConfig rabbitConfig = new RabbitConfig().add(Companion.permissions("dan", "test", p -> INSTANCE));
             RabbitPuppy puppy = new RabbitPuppy(rabbitRestClient);
 
             it.should("create it if it doesn't exist", expect -> {
@@ -170,7 +175,10 @@ public class RabbitPuppySpec {
             final ExchangeData data = new ExchangeData("topic", true, false, false, new HashMap<>());
 
             RabbitPuppy puppy = new RabbitPuppy(rabbitRestClient);
-            RabbitConfig rabbitConfig = new RabbitConfig().addExchange("foo", "vhost", data);
+            RabbitConfig rabbitConfig = new RabbitConfig().add(Companion.exchange("foo", "vhost", e -> {
+                e.setType("topic");
+                return INSTANCE;
+            }));
 
             it.should("create exchange if it doesn't exist", expect -> {
                 when(rabbitRestClient.getExchange("vhost", "foo", USER, PASS))
@@ -214,8 +222,7 @@ public class RabbitPuppySpec {
         describe("a rabbit-puppy configured to create a queue", it -> {
 
             QueueData data = new QueueData();
-            RabbitConfig rabbitConfig = new RabbitConfig()
-                    .addQueue("queue", "test", data);
+            RabbitConfig rabbitConfig = new RabbitConfig().add(Companion.queue("queue", "test", q -> INSTANCE));
             RabbitPuppy puppy = new RabbitPuppy(rabbitRestClient);
 
             it.should("create it if it doesn't exist", expect -> {
@@ -256,9 +263,13 @@ public class RabbitPuppySpec {
 
         describe("a rabbit-puppy configured to create a binding", it -> {
 
-            BindingData data = new BindingData("q", "queue", "#", null);
-            RabbitConfig rabbitConfig = new RabbitConfig()
-                    .addBinding("ex", "test", data);
+            BindingData data = new BindingData("q", "queue", "#", new HashMap<>());
+            RabbitConfig rabbitConfig = new RabbitConfig().add(Companion.binding("ex", "test", b -> {
+                b.setDestination(data.getDestination());
+                b.setDestination_type(data.getDestination_type());
+                b.setRouting_key(data.getRouting_key());
+                return INSTANCE;
+            }));
             RabbitPuppy puppy = new RabbitPuppy(rabbitRestClient);
 
             it.should("create it if it doesn't exist", expect -> {
@@ -275,7 +286,7 @@ public class RabbitPuppySpec {
 
             it.should("doesn't create it if it exists", expect -> {
                 when(rabbitRestClient.getBindings("test", USER, PASS)).thenReturn(
-                        of("ex", newArrayList(new BindingData("q", "queue", "#", null))));
+                        of("ex", newArrayList(new BindingData("q", "queue", "#", new HashMap<>()))));
 
                 puppy.apply(rabbitConfig);
 
@@ -288,13 +299,34 @@ public class RabbitPuppySpec {
 
         describe("a rabbit-puppy creating a resource on a new vhost", it -> {
 
-            Function<Void, RabbitConfig> rabbitConfigFunction = v -> new RabbitConfig()
-                    .addUser("userA", new UserData("passA", true))
-                    .addPermissions("userA", "test", new PermissionsData("exA.*", "", ""))
-                    .addUser("userB", new UserData("passB", true))
-                    .addPermissions("userB", "test", new PermissionsData("exB.*", "", ""))
-                    .addUser("userC", new UserData("passC", true))
-                    .addPermissions("userC", "test", new PermissionsData(".*exC.*", "", ""));
+            Function<Void, RabbitConfig> newRabbitConfig = v -> new RabbitConfig()
+                    .add(Companion.user("userA", d -> {
+                        d.setAdmin(true);
+                        d.setPassword("passA");
+                        return INSTANCE;
+                    }))
+                    .add(Companion.user("userB", d -> {
+                        d.setAdmin(true);
+                        d.setPassword("passB");
+                        return INSTANCE;
+                    }))
+                    .add(Companion.user("userC", d -> {
+                        d.setAdmin(true);
+                        d.setPassword("passC");
+                        return INSTANCE;
+                    }))
+                    .add(Companion.permissions("userA", "test", d -> {
+                        d.setConfigure("exA.*");
+                        return INSTANCE;
+                    }))
+                    .add(Companion.permissions("userB", "test", d -> {
+                        d.setConfigure("exB.*");
+                        return INSTANCE;
+                    }))
+                    .add(Companion.permissions("userC", "test", d -> {
+                        d.setConfigure(".*exC.*");
+                        return INSTANCE;
+                    }));
 
             RabbitPuppy puppy = new RabbitPuppy(rabbitRestClient);
 
@@ -303,9 +335,9 @@ public class RabbitPuppySpec {
                     .and("exB123abc", "userB", "passB")
                     .and("foo.exC_bar", "userC", "passC")
                     .toShow("creates resource %s with user with correct permissions: %s", (expect, exchange, user, pass) -> {
-                        ExchangeData exchangeData = mock(ExchangeData.class);
-                        RabbitConfig rabbitConfig = rabbitConfigFunction.apply(null)
-                                .addExchange(exchange, "test", exchangeData);
+                        ExchangeData exchangeData = new ExchangeData();
+                        RabbitConfig rabbitConfig = newRabbitConfig.apply(null)
+                                .add(Companion.exchange(exchange, "test", d -> INSTANCE));
 
                         when(rabbitRestClient.getPermissions()).thenReturn(new HashMap<>());
                         when(rabbitRestClient.getUsers()).thenReturn(new HashMap<>());

@@ -71,7 +71,7 @@ public class RabbitRestClientTest {
                         rabbitRestClient.createVirtualHost(vhost, data);
 
                         Map map = gson.fromJson(getString(req, PATH_VHOSTS_SINGLE, of("vhost", vhost)), Map.class);
-                        expect.that(map.get("tracing")).is(data.isTracing());
+                        expect.that(map.get("tracing")).is(data.getTracing());
                     });
 
             it.should("gets existing vhosts", expect -> {

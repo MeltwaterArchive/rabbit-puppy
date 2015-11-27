@@ -78,7 +78,7 @@ public class RabbitRestClient {
                         .request(PATH_USERS_SINGLE, of("user", user))
                         .put(entity(gson.toJson(of(
                                 "password", userData.getPassword(),
-                                "tags", userData.isAdmin() ? "administrator" : ""
+                                "tags", userData.getAdmin() ? "administrator" : ""
                         )), MediaType.APPLICATION_JSON_TYPE)),
                 Status.NO_CONTENT.getStatusCode());
     }

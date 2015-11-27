@@ -240,7 +240,7 @@ public class RabbitPuppy {
             if (matcher.matches()) {
                 final String exchange = matcher.group(1);
                 final String vhost = matcher.group(2);
-                final List<BindingData> bindings = entry.getValue();
+                final List<BindingData> bindings = (List<BindingData>) entry.getValue();
                 final Auth auth = authForResource(config.getUsers(), config.getPermissions(), vhost, exchange);
                 try {
                     final Map<String, List<BindingData>> existingVhost = client.getBindings(vhost, auth.user, auth.pass);

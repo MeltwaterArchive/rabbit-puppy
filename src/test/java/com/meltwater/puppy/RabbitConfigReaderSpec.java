@@ -72,8 +72,8 @@ public class RabbitConfigReaderSpec {{
                     .is(3)
                     .and(config.getExchanges())
                     .has(hasEntry("exchange.in@input", new ExchangeData("topic", false, true, true, of("hash-header", "abc"))))
-                    .has(hasEntry("exchange.out@output", new ExchangeData("fanout", true, false, false, null)))
-                    .has(hasEntry("exchange.out.direct@output", new ExchangeData("direct", true, false, false, null)));
+                    .has(hasEntry("exchange.out@output", new ExchangeData("fanout", true, false, false, new HashMap<>())))
+                    .has(hasEntry("exchange.out.direct@output", new ExchangeData("direct", true, false, false, new HashMap<>())));
         });
 
         it.should("reads queues", expect -> {

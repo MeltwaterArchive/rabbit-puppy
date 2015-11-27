@@ -14,6 +14,7 @@
         <slf4j.version>1.6.4</slf4j.version>
         <logback.version>1.0.1</logback.version>
         <!-- For now, also update scr/test/resources/test.properties to match these -->
+        <kotlin.version>1.0.0-beta-2423</kotlin.version>
         <docker.rabbit.host>localhost</docker.rabbit.host>
         <docker.rabbit.port>15673</docker.rabbit.port>
     </properties>
@@ -77,6 +78,11 @@
             <artifactId>lambda-behave</artifactId>
             <version>0.4</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>${kotlin.version}</version>
         </dependency>
     </dependencies>
 
@@ -257,6 +263,37 @@
                         <goals>
                             <goal>push</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirs>
+                                <source>src/main/java</source>
+                            </sourceDirs>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>process-test-sources</phase>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirs>
+                                <source>src/test/java</source>
+                            </sourceDirs>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
