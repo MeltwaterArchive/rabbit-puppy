@@ -272,7 +272,7 @@ public class RabbitPuppySpec {
             }));
             RabbitPuppy puppy = new RabbitPuppy(rabbitRestClient);
 
-            it.should("create it if it doesn't exist", expect -> {
+            it.should("create binding if it doesn't exist", expect -> {
                 when(rabbitRestClient.getBindings("test", USER, PASS)).thenReturn(new HashMap<>());
 
                 puppy.apply(rabbitConfig);
@@ -284,11 +284,23 @@ public class RabbitPuppySpec {
                 verifyNoMoreInteractions(rabbitRestClient);
             });
 
-            it.should("doesn't create it if it exists", expect -> {
+            it.should("doesn't create binding if it exists", expect -> {
                 when(rabbitRestClient.getBindings("test", USER, PASS)).thenReturn(
                         of("ex", newArrayList(new BindingData("q", "queue", "#", new HashMap<>()))));
 
                 puppy.apply(rabbitConfig);
+
+                verify(rabbitRestClient).getBindings("test", USER, PASS);
+                verify(rabbitRestClient).getUsername();
+                verify(rabbitRestClient).getPassword();
+                verifyNoMoreInteractions(rabbitRestClient);
+            });
+
+            it.should("throw exception if binding exists with different config", expect -> {
+                when(rabbitRestClient.getBindings("test", USER, PASS)).thenReturn(
+                        of("ex", newArrayList(new BindingData("q", "queue", "#.asdf.#", null))));
+
+                expect.exception(RabbitPuppyException.class, () -> puppy.apply(rabbitConfig));
 
                 verify(rabbitRestClient).getBindings("test", USER, PASS);
                 verify(rabbitRestClient).getUsername();
