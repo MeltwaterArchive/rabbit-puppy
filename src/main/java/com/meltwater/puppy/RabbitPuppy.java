@@ -256,7 +256,7 @@ public class RabbitPuppy {
                                         || !bindingData.getDestination_type().equals(exBind.getDestination_type())) {
                                     createBinding(errors, name, exchange, vhost, auth, bindingData);
                                 } else if(!bindingData.getRouting_key().equals(exBind.getRouting_key())) {
-                                    String error = format("Binding with different routingkey already exist '%s'", "TEST TEST TEST");
+                                    String error = format("Binding with different routingkey already exist '%s'", exBind);
                                     log.error(error);
                                     errors.add(new RabbitConfigException(error));
                                 }
