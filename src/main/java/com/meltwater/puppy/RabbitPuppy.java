@@ -249,20 +249,23 @@ public class RabbitPuppy {
                             new ArrayList<>();
                     bindings.forEach(bindingData -> {
                         log.info(format("Ensuring binding %s %s", name, bindingData));
-                        if (!existing.contains(bindingData)) {
-                            log.info(format("Creating binding %s : %s", name, bindingData));
-                            try {
-                                client.createBinding(vhost,
-                                                     exchange,
-                                                     bindingData,
-                                                     auth.user,
-                                                     auth.pass);
-                            } catch (RestClientException e) {
-                                log.error(format("Failed to create binding %s %s: %s", name, bindingData, e.getMessage()));
-                                errors.add(e);
-                            }
+                        if(existing.size() > 0) {
+                            existing.forEach(exBind -> {
+                                log.info(format("Check binding %s", bindingData));
+                                if(!bindingData.getDestination().equals(exBind.getDestination())
+                                        || !bindingData.getDestination_type().equals(exBind.getDestination_type())) {
+                                    createBinding(errors, name, exchange, vhost, auth, bindingData);
+                                } else if(!bindingData.getRouting_key().equals(exBind.getRouting_key())) {
+                                    String error = format("Binding with different routingkey already exist '%s'", "TEST TEST TEST");
+                                    log.error(error);
+                                    errors.add(new RabbitConfigException(error));
+                                }
+                            });
+                        } else {
+                            createBinding(errors, name, exchange, vhost, auth, bindingData);
                         }
                     });
+
                 } catch (RestClientException e) {
                     log.error(format("Failed to fetch bindings from %s", name), e);
                     errors.add(e);
@@ -273,6 +276,21 @@ public class RabbitPuppy {
                 errors.add(new RabbitConfigException(error));
             }
         });
+    }
+
+
+    private void createBinding(List<Throwable> errors, String name, String exchange, String vhost, Auth auth, BindingData bindingData) {
+        log.info(format("Creating binding %s : %s", name, bindingData));
+        try {
+            client.createBinding(vhost,
+                    exchange,
+                    bindingData,
+                    auth.user,
+                    auth.pass);
+        } catch (RestClientException e) {
+            log.error(format("Failed to create binding %s %s: %s", name, bindingData, e.getMessage()));
+            errors.add(e);
+        }
     }
 
     /**
