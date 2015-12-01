@@ -1,5 +1,5 @@
 # rabbit-puppy Release Notes
-## next
+## 0.1.2
 - Converted to Kotlin
 
 ## 0.1.1
