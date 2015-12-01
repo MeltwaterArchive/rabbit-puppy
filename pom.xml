@@ -7,10 +7,10 @@
 
     <groupId>com.meltwater.puppy</groupId>
     <artifactId>rabbit-puppy</artifactId>
-    <version>0.1.2</version>
+    <version>0.2.0-SNAPSHOT</version>
 
     <properties>
-        <docker.build.version>0.1.2</docker.build.version>
+        <docker.build.version>latest</docker.build.version>
         <slf4j.version>1.6.4</slf4j.version>
         <logback.version>1.0.1</logback.version>
         <!-- For now, also update scr/test/resources/test.properties to match these -->
