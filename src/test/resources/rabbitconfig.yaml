@@ -43,7 +43,7 @@ queues:
             x-message-ttl: 123
             x-dead-letter-exchange: other
     queue-out@output:
-        arguments:
+        arguments: {}
 
 bindings:
     exchange.in@input:

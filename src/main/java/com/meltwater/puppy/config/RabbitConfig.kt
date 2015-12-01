@@ -2,13 +2,6 @@ package com.meltwater.puppy.config
 
 import java.util.*
 
-data class User(val name: String, var properties: UserData)
-data class Vhost(val name: String, var properties: VHostData)
-data class Permissions(val userName: String, var vhost: String, var properties: PermissionsData)
-data class Exchange(val name: String, val vhost: String, var properties: ExchangeData)
-data class Queue(val name: String, val vhost: String, var properties: QueueData)
-data class Binding(val exchange: String, val vhost: String, var properties: BindingData)
-
 data class RabbitConfig(
         var vhosts: MutableMap<String, VHostData> = HashMap(),
         var users: MutableMap<String, UserData> = HashMap(),
@@ -17,59 +10,39 @@ data class RabbitConfig(
         var queues: MutableMap<String, QueueData> = HashMap(),
         var bindings: MutableMap<String, MutableList<BindingData>> = HashMap()) {
 
-    fun add(it: User): RabbitConfig {
-        users.put(it.name, it.properties)
+    fun <T : Any> initProperties(t: T, init: T.() -> Unit): T {
+        t.init()
+        return t
+    }
+
+    fun addUser(name: String, init: UserData.() -> Unit): RabbitConfig {
+        users.put(name, initProperties(UserData(), init))
         return this
     }
 
-    fun add(it: Vhost): RabbitConfig {
-        vhosts.put(it.name, it.properties)
+    fun addVhost(name: String, init: VHostData.() -> Unit): RabbitConfig {
+        vhosts.put(name, initProperties(VHostData(), init))
         return this
     }
 
-    fun add(it: Permissions): RabbitConfig {
-        permissions.put("${it.userName}@${it.vhost}", it.properties)
+    fun addPermissions(user: String, vhost: String, init: PermissionsData.() -> Unit): RabbitConfig {
+        permissions.put("$user@$vhost", initProperties(PermissionsData(), init))
         return this
     }
 
-    fun add(it: Exchange): RabbitConfig {
-        exchanges.put("${it.name}@${it.vhost}", it.properties)
+    fun addExchange(name: String, vhost: String, init: ExchangeData.() -> Unit): RabbitConfig {
+        exchanges.put("$name@$vhost", initProperties(ExchangeData(), init))
         return this
     }
 
-    fun add(it: Queue): RabbitConfig {
-        queues.put("${it.name}@${it.vhost}", it.properties)
+    fun addQueue(name: String, vhost: String, init: QueueData.() -> Unit): RabbitConfig {
+        queues.put("$name@$vhost", initProperties(QueueData(), init))
         return this
     }
 
-    fun add(it: Binding): RabbitConfig {
-        val key = "${it.exchange}@${it.vhost}"
-        bindings.getOrPut(key, {arrayListOf()}).add(it.properties)
+    fun addBinding(exchange: String, vhost: String, init: BindingData.() -> Unit): RabbitConfig {
+        val key = "$exchange@$vhost"
+        bindings.getOrPut(key, {arrayListOf()}).add(initProperties(BindingData(), init))
         return this
-    }
-
-    companion object {
-        fun <T : Any> initProperties(t: T, init: T.() -> Unit): T {
-            t.init()
-            return t
-        }
-
-        fun user(name: String, init: UserData.() -> Unit) =
-                User(name, initProperties(UserData(), init))
-
-        fun vhost(name: String, init: VHostData.() -> Unit) =
-                Vhost(name, initProperties(VHostData(), init))
-
-        fun permissions(user: String, vhost: String, init: PermissionsData.() -> Unit) =
-                Permissions(user, vhost, initProperties(PermissionsData(), init))
-
-        fun exchange(name: String, vhost: String, init: ExchangeData.() -> Unit) =
-                Exchange(name, vhost, initProperties(ExchangeData(), init))
-
-        fun queue(name: String, vhost: String, init: QueueData.() -> Unit) =
-                Queue(name, vhost, initProperties(QueueData(), init))
-
-        fun binding(exchange: String, vhost: String, init: BindingData.() -> Unit) =
-                Binding(exchange, vhost, initProperties(BindingData(), init))
     }
 }
