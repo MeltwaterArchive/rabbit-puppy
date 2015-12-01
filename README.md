@@ -1,10 +1,9 @@
 # rabbit-puppy
 ## is
-A Java tool for configuring a RabbitMQ broker based on YAML configuration, which aims to:
-- be easy to use
-- be safe to use
-- never destroy any data or resource
-- be unopinionated
+A Java tool for configuring a RabbitMQ broker based on YAML configuration, which aims to be:
+- easy to use
+- safe to use
+- unopinionated
 
 ## does
 rabbit-puppy connects to a RabbitMQ broker via the HTTP API, creates resources on the broker based on a YAML configuration, and ensures that the resources specified in the configuration exist on the broker.
