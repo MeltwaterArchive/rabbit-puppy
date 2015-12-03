@@ -1,7 +1,8 @@
 # rabbit-puppy Release Notes
-## next
+## v0.1.3 - 2015-12-03
 ### Fixes
-- Fixes Main class error when running jar
+- Main class error when running jar
+- Kotlin build error
 
 ## 0.1.2
 ### Changes
