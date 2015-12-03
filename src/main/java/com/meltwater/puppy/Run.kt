@@ -67,29 +67,25 @@ private fun parseArguments(programName: String, argv: Array<String>): Arguments 
     return arguments
 }
 
-fun main(argv: Array<String>) {
-    if (!run(argv)) {
-        System.exit(1)
-    }
-}
-
-public fun run(argv: Array<String>): Boolean {
-    val arguments = parseArguments("rabbit-puppy", argv)
-    log.info("Reading configuration from " + arguments.configPath!!)
-    try {
-        val rabbitConfig = rabbitConfigReader.read(File(arguments.configPath))
-        val rabbitPuppy = RabbitPuppy(arguments.broker!!, arguments.user!!, arguments.pass!!)
-        if (arguments.wait > 0) {
-            rabbitPuppy.waitForBroker(arguments.wait)
+class Run {
+    public fun run(argv: Array<String>): Boolean {
+        val arguments = parseArguments("rabbit-puppy", argv)
+        log.info("Reading configuration from " + arguments.configPath!!)
+        try {
+            val rabbitConfig = rabbitConfigReader.read(File(arguments.configPath))
+            val rabbitPuppy = RabbitPuppy(arguments.broker!!, arguments.user!!, arguments.pass!!)
+            if (arguments.wait > 0) {
+                rabbitPuppy.waitForBroker(arguments.wait)
+            }
+            rabbitPuppy.apply(rabbitConfig)
+            return true
+        } catch (e: RabbitConfigException) {
+            log.error("Failed to read configuration, exiting")
+            return false
+        } catch (e: RabbitPuppyException) {
+            log.error("Encountered ${e.errors.size} errors, exiting")
+            return false
         }
-        rabbitPuppy.apply(rabbitConfig)
-        return true
-    } catch (e: RabbitConfigException) {
-        log.error("Failed to read configuration, exiting")
-        return false
-    } catch (e: RabbitPuppyException) {
-        log.error("Encountered ${e.errors.size} errors, exiting")
-        return false
     }
 }
 

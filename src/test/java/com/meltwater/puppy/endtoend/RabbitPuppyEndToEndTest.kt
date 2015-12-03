@@ -1,16 +1,21 @@
 package com.meltwater.puppy.endtoend
 
+import com.google.common.collect.ImmutableMap.of
 import com.google.gson.Gson
 import com.insightfullogic.lambdabehave.JunitSuiteRunner
-import org.junit.runner.RunWith
-
-import java.io.IOException
-import java.util.Properties
-
-import com.google.common.collect.ImmutableMap.of
 import com.insightfullogic.lambdabehave.Suite.describe
-import com.meltwater.puppy.rest.*
-import com.meltwater.puppy.run
+import com.meltwater.puppy.Run
+import com.meltwater.puppy.rest.RabbitRestClient.Companion.PATH_BINDING_EXCHANGE
+import com.meltwater.puppy.rest.RabbitRestClient.Companion.PATH_BINDING_QUEUE
+import com.meltwater.puppy.rest.RabbitRestClient.Companion.PATH_EXCHANGES_SINGLE
+import com.meltwater.puppy.rest.RabbitRestClient.Companion.PATH_PERMISSIONS_SINGLE
+import com.meltwater.puppy.rest.RabbitRestClient.Companion.PATH_QUEUES_SINGLE
+import com.meltwater.puppy.rest.RabbitRestClient.Companion.PATH_USERS_SINGLE
+import com.meltwater.puppy.rest.RabbitRestClient.Companion.PATH_VHOSTS_SINGLE
+import com.meltwater.puppy.rest.RestRequestBuilder
+import org.junit.runner.RunWith
+import java.io.IOException
+import java.util.*
 
 @RunWith(JunitSuiteRunner::class)
 class RabbitPuppyEndToEndTest {
@@ -41,7 +46,7 @@ class RabbitPuppyEndToEndTest {
 
         describe("a rabbit-puppy with configuration and external rabbit") { it ->
 
-            it.isSetupWith { run(arrayOf("--broker", brokerAddress, "--user", brokerUser, "--pass", brokerPass, "--config", configPath)) }
+            it.isSetupWith { Run().run(arrayOf("--broker", brokerAddress, "--user", brokerUser, "--pass", brokerPass, "--config", configPath)) }
 
             it.isConcludedWith {
                 req.request(PATH_VHOSTS_SINGLE, of("vhost", VHOST)).delete()

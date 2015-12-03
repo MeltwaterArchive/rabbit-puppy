@@ -13,8 +13,8 @@
         <docker.build.version>latest</docker.build.version>
         <slf4j.version>1.6.4</slf4j.version>
         <logback.version>1.0.1</logback.version>
-        <!-- For now, also update scr/test/resources/test.properties to match these -->
         <kotlin.version>1.0.0-beta-2423</kotlin.version>
+        <!-- For now, also update scr/test/resources/test.properties to match these -->
         <docker.rabbit.host>localhost</docker.rabbit.host>
         <docker.rabbit.port>15673</docker.rabbit.port>
     </properties>
@@ -126,7 +126,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.meltwater.puppy.MainKt</mainClass>
+                            <mainClass>com.meltwater.puppy.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

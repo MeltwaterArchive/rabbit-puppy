@@ -16,22 +16,25 @@ class RestClientException : Exception {
     constructor(s: String) : super(s)
 }
 
-public val PATH_OVERVIEW = "api/overview"
-public val PATH_VHOSTS = "api/vhosts"
-public val PATH_VHOSTS_SINGLE = "api/vhosts/{vhost}"
-public val PATH_USERS = "api/users"
-public val PATH_USERS_SINGLE = "api/users/{user}"
-public val PATH_PERMISSIONS = "api/permissions"
-public val PATH_PERMISSIONS_SINGLE = "api/permissions/{vhost}/{user}"
-public val PATH_EXCHANGES_SINGLE = "api/exchanges/{vhost}/{exchange}"
-public val PATH_QUEUES_SINGLE = "api/queues/{vhost}/{queue}"
-public val PATH_BINDINGS_VHOST = "api/bindings/{vhost}"
-public val PATH_BINDING_QUEUE = "api/bindings/{vhost}/e/{exchange}/q/{to}"
-public val PATH_BINDING_EXCHANGE = "api/bindings/{vhost}/e/{exchange}/e/{to}"
-
 open class RabbitRestClient(brokerAddress: String, brokerUsername: String, brokerPassword: String) {
 
     private val log = LoggerFactory.getLogger(RabbitRestClient::class.java)
+
+    companion object {
+        val PATH_OVERVIEW = "api/overview"
+        public val PATH_VHOSTS = "api/vhosts"
+        val PATH_VHOSTS_SINGLE = "api/vhosts/{vhost}"
+        val PATH_USERS = "api/users"
+        val PATH_USERS_SINGLE = "api/users/{user}"
+        val PATH_PERMISSIONS = "api/permissions"
+        val PATH_PERMISSIONS_SINGLE = "api/permissions/{vhost}/{user}"
+        val PATH_EXCHANGES_SINGLE = "api/exchanges/{vhost}/{exchange}"
+        val PATH_QUEUES_SINGLE = "api/queues/{vhost}/{queue}"
+        val PATH_BINDINGS_VHOST = "api/bindings/{vhost}"
+        val PATH_BINDING_QUEUE = "api/bindings/{vhost}/e/{exchange}/q/{to}"
+        val PATH_BINDING_EXCHANGE = "api/bindings/{vhost}/e/{exchange}/e/{to}"
+    }
+
 
     private val requestBuilder: RestRequestBuilder
     private val parser = RabbitRestResponseParser()

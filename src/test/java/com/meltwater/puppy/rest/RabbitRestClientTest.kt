@@ -8,6 +8,9 @@ import com.meltwater.puppy.config.ExchangeData
 import com.meltwater.puppy.config.ExchangeType
 import com.meltwater.puppy.config.PermissionsData
 import com.meltwater.puppy.config.VHostData
+import com.meltwater.puppy.rest.RabbitRestClient.Companion.PATH_EXCHANGES_SINGLE
+import com.meltwater.puppy.rest.RabbitRestClient.Companion.PATH_PERMISSIONS_SINGLE
+import com.meltwater.puppy.rest.RabbitRestClient.Companion.PATH_VHOSTS_SINGLE
 import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.junit.runner.RunWith
 import java.io.IOException
