@@ -325,7 +325,7 @@ class RabbitPuppy {
     private fun withKnownPasswords(existing: Map<String, UserData>,
                                    fromConfig: Map<String, UserData>): Map<String, UserData> {
         existing.forEach { entry ->
-            entry.value.password = fromConfig.getOrElse(entry.key, {""}).toString()
+            entry.value.password = fromConfig.getOrElse(entry.key, {UserData()}).password
         }
         return existing
     }

@@ -22,6 +22,8 @@ class RabbitConfigException : Exception {
 
 class RabbitConfigReader {
 
+    private val log = LoggerFactory.getLogger(RabbitConfigReader::class.java)
+
     @Throws(RabbitConfigException::class)
     fun read(yaml: String): RabbitConfig {
         try {
@@ -53,7 +55,6 @@ class RabbitConfigReader {
             val bindings = ArrayList<BindingData>()
             (rabbitConfig.bindings[key] as List<Any>).forEach { b ->
                 val bindingMap = b as Map<String, Any>
-                log.info("I got a $bindingMap")
                 bindings.add(BindingData(
                         if (bindingMap["destination"] != null) bindingMap["destination"].toString() else null,
                         if (bindingMap["destination_type"] != null) bindingMap["destination_type"].toString() else null,
@@ -63,10 +64,5 @@ class RabbitConfigReader {
             rabbitConfig.bindings.put(key, bindings)
         }
         return rabbitConfig
-    }
-
-    companion object {
-
-        private val log = LoggerFactory.getLogger(RabbitConfigReader::class.java)
     }
 }
