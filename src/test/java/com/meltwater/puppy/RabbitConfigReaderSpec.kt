@@ -1,24 +1,15 @@
 package com.meltwater.puppy
 
+import com.google.common.collect.ImmutableMap.of
 import com.insightfullogic.lambdabehave.JunitSuiteRunner
-import com.meltwater.puppy.config.BindingData
-import com.meltwater.puppy.config.ExchangeData
-import com.meltwater.puppy.config.ExchangeType
-import com.meltwater.puppy.config.PermissionsData
-import com.meltwater.puppy.config.QueueData
-import com.meltwater.puppy.config.RabbitConfig
-import com.meltwater.puppy.config.UserData
-import com.meltwater.puppy.config.VHostData
+import com.insightfullogic.lambdabehave.Suite.describe
+import com.meltwater.puppy.config.*
 import com.meltwater.puppy.config.reader.RabbitConfigException
 import com.meltwater.puppy.config.reader.RabbitConfigReader
-import org.junit.runner.RunWith
-
-import java.io.File
-import java.util.HashMap
-
-import com.google.common.collect.ImmutableMap.of
-import com.insightfullogic.lambdabehave.Suite.describe
 import org.hamcrest.Matchers.hasEntry
+import org.junit.runner.RunWith
+import java.io.File
+import java.util.*
 
 @SuppressWarnings("ConstantConditions")
 @RunWith(JunitSuiteRunner::class)

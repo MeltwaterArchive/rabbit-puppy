@@ -13,12 +13,13 @@ import com.meltwater.puppy.rest.RabbitRestClient.Companion.PATH_QUEUES_SINGLE
 import com.meltwater.puppy.rest.RabbitRestClient.Companion.PATH_USERS_SINGLE
 import com.meltwater.puppy.rest.RabbitRestClient.Companion.PATH_VHOSTS_SINGLE
 import com.meltwater.puppy.rest.RestRequestBuilder
+import org.hamcrest.Matchers
 import org.junit.runner.RunWith
 import java.io.IOException
 import java.util.*
 
 @RunWith(JunitSuiteRunner::class)
-class RabbitPuppyEndToEndTest {
+class ApplyEndToEndTest {
     init {
         val properties = object : Properties() {
             init {
@@ -44,16 +45,20 @@ class RabbitPuppyEndToEndTest {
 
         val configPath = ClassLoader.getSystemResource("endtoend.yaml").path
 
-        describe("a rabbit-puppy with configuration and external rabbit") { it ->
+        describe("a rabbit-puppy applying configuration on external rabbit") { it ->
 
-            it.isSetupWith { Run().run(arrayOf("--broker", brokerAddress, "--user", brokerUser, "--pass", brokerPass, "--config", configPath)) }
+            it.isSetupWith { Run().run("rabbit-puppy",arrayOf("apply",
+                    "--broker", brokerAddress,
+                    "--user", brokerUser,
+                    "--pass", brokerPass,
+                    "--config", configPath)) }
 
             it.isConcludedWith {
                 req.request(PATH_VHOSTS_SINGLE, of("vhost", VHOST)).delete()
                 req.request(PATH_USERS_SINGLE, of("user", "test_dan")).delete()
             }
 
-            it.should("create vhost") { expect ->
+            it.should("creates vhost") { expect ->
                 val map = gson.fromJson<Map<Any, Any>>(getString(req, PATH_VHOSTS_SINGLE, of(
                         "vhost", VHOST)),
                         Map::class.java)

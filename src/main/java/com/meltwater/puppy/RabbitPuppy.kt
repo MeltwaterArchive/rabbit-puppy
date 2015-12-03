@@ -1,5 +1,8 @@
 package com.meltwater.puppy
 
+import com.meltwater.puppy.action.EnsurePresentAction
+import com.meltwater.puppy.action.RabbitAction
+import com.meltwater.puppy.action.VerifyConfigAction
 import com.meltwater.puppy.config.*
 import com.meltwater.puppy.config.reader.RabbitConfigException
 import com.meltwater.puppy.rest.RabbitRestClient
@@ -41,57 +44,71 @@ class RabbitPuppy {
         return false
     }
 
-    /**
-     * Apply configuration to RabbitMQ Broker
-
-     * @param config Configuration to apply
-     * *
-     * @throws RabbitPuppyException If errors or configuration mismatches are encountered
-     */
     @Throws(RabbitPuppyException::class)
     fun apply(config: RabbitConfig) {
         val errors = ArrayList<Throwable>()
+        val action = EnsurePresentAction(client);
 
         if (config.vhosts.size > 0)
-            createVHosts(config.vhosts, errors)
+            vhosts(action, config.vhosts, errors)
 
         if (config.users.size > 0)
-            createUsers(config.users, errors)
+            users(action, config.users, errors)
 
         if (config.permissions.size > 0)
-            createPermissions(config.permissions, errors)
+            permissions(action, config.permissions, errors)
 
         if (config.exchanges.size > 0)
-            createExchanges(config, errors)
+            exchanges(action, config, errors)
 
         if (config.queues.size > 0)
-            createQueues(config, errors)
+            queues(action, config, errors)
 
         if (config.bindings.size > 0)
-            createBindings(config, errors)
+            bindings(action, config, errors)
 
         if (errors.size > 0) {
             throw RabbitPuppyException("Encountered errors while applying configuration", errors)
         }
     }
 
-    /**
-     * Create vhosts based on configuration.
+    @Throws(RabbitPuppyException::class)
+    fun verify(config: RabbitConfig) {
+        val errors = ArrayList<Throwable>()
+        val action = VerifyConfigAction();
 
-     * @param vhosts Configured vhosts
-     * *
-     * @return List of errors encountered during creation
-     */
-    private fun createVHosts(vhosts: Map<String, VHostData>, errors: MutableList<Throwable>) {
+        if (config.vhosts.size > 0)
+            vhosts(action, config.vhosts, errors)
+
+        if (config.users.size > 0)
+            users(action, config.users, errors)
+
+        if (config.permissions.size > 0)
+            permissions(action, config.permissions, errors)
+
+        if (config.exchanges.size > 0)
+            exchanges(action, config, errors)
+
+        if (config.queues.size > 0)
+            queues(action, config, errors)
+
+        if (config.bindings.size > 0)
+            bindings(action, config, errors)
+
+        if (errors.size > 0) {
+            throw RabbitPuppyException("Encountered errors while applying configuration", errors)
+        }
+    }
+
+    private fun vhosts(action: RabbitAction, vhosts: Map<String, VHostData>, errors: MutableList<Throwable>) {
         try {
             val existing: Map<String, VHostData> = client.getVirtualHosts()
             vhosts.entries.forEach { entry ->
-                val name: String = entry.key
-                val data: VHostData = entry.value
-                ensurePresent("vhost", name, data, existing, errors, {
-                    log.info("Creating vhost $name")
-                    client.createVirtualHost(name, data)
-                })
+                try {
+                    action.vhost(entry.key, entry.value, existing);
+                } catch (e: Exception) {
+                    errors.add(e)
+                }
             }
         } catch (e: RestClientException) {
             log.error("Failed to fetch vhosts", e)
@@ -100,23 +117,15 @@ class RabbitPuppy {
 
     }
 
-    /**
-     * Create users based on configuration.
-
-     * @param users Configured users
-     * *
-     * @return List of errors encountered during creation
-     */
-    private fun createUsers(users: Map<String, UserData>, errors: MutableList<Throwable>) {
+    private fun users(action: RabbitAction, users: Map<String, UserData>, errors: MutableList<Throwable>) {
         try {
             val existing = withKnownPasswords(client.getUsers(), users)
             users.entries.forEach { entry ->
-                val name = entry.key
-                val data = entry.value
-                ensurePresent("user", name, data, existing, errors, {
-                    log.info("Creating user $name")
-                    client.createUser(entry.key, data)
-                })
+                try {
+                    action.user(entry.key, entry.value, existing)
+                } catch (e: Exception) {
+                    errors.add(e)
+                }
             }
         } catch (e: RestClientException) {
             log.error("Failed to fetch vhosts", e)
@@ -125,27 +134,18 @@ class RabbitPuppy {
 
     }
 
-    /**
-     * Creates user permissions per vhost based on configuration.
-
-     * @param permissions Configured permissions
-     * *
-     * @return List of errors encountered during creation
-     */
-    private fun createPermissions(permissions: Map<String, PermissionsData>, errors: MutableList<Throwable>) {
+    private fun permissions(action: RabbitAction, permissions: Map<String, PermissionsData>, errors: MutableList<Throwable>) {
         try {
             val existing = client.getPermissions()
             permissions.entries.forEach { entry ->
                 val name = entry.key
                 val matcher = atVHostPattern.matcher(name)
                 if (matcher.matches()) {
-                    val data = entry.value
-                    ensurePresent<PermissionsData>("permissions", name, data, existing, errors, {
-                        val user = matcher.group(1)
-                        val vhost = matcher.group(2)
-                        log.info("Setting permissions for user $user at vhost $vhost")
-                        client.createPermissions(user, vhost, data)
-                    })
+                    try {
+                        action.permissions(matcher.group(1), matcher.group(2), entry.value, existing);
+                    } catch (e: Exception) {
+                        errors.add(e)
+                    }
                 } else {
                     val error = "Invalid exchange format '$name', should be exchange@vhost"
                     log.error(error)
@@ -159,14 +159,7 @@ class RabbitPuppy {
 
     }
 
-    /**
-     * Creates exchanges based on configuration.
-
-     * @param config Rabbit configuration
-     * *
-     * @return List of errors encountered during creation
-     */
-    private fun createExchanges(config: RabbitConfig, errors: MutableList<Throwable>) {
+    private fun exchanges(action: RabbitAction, config: RabbitConfig, errors: MutableList<Throwable>) {
         config.exchanges.entries.forEach { entry ->
             val name = entry.key
             val matcher = atVHostPattern.matcher(name)
@@ -174,16 +167,12 @@ class RabbitPuppy {
                 val exchange = matcher.group(1)
                 val vhost = matcher.group(2)
                 val data = entry.value
-                log.debug("Ensuring exchange $exchange exists at vhost $vhost with configuration $data")
                 val auth = authForResource(config.users, config.permissions, vhost, exchange)
+                log.debug("Ensuring exchange $exchange exists at vhost $vhost with configuration $data")
                 try {
                     val existing = client.getExchange(vhost, exchange, auth.first, auth.second)
-                    ensurePresent<ExchangeData>("exchange", name, data, existing, errors, {
-                        log.info("Creating exchange $exchange at vhost $vhost with configuration $data")
-                        client.createExchange(vhost, exchange, data, auth.first, auth.second)
-                    })
-                } catch (e: RestClientException) {
-                    log.error("Exception when ensuring exchange $exchange", e)
+                    action.exchange(exchange, vhost, data, existing, auth)
+                } catch (e: Exception) {
                     errors.add(e)
                 }
 
@@ -195,14 +184,7 @@ class RabbitPuppy {
         }
     }
 
-    /**
-     * Creates queues based on configuration.
-
-     * @param config Rabbit configuration
-     * *
-     * @return List of errors encountered during creation
-     */
-    private fun createQueues(config: RabbitConfig, errors: MutableList<Throwable>) {
+    private fun queues(action: RabbitAction, config: RabbitConfig, errors: MutableList<Throwable>) {
         config.queues.entries.forEach { entry ->
             val name = entry.key
             val matcher = atVHostPattern.matcher(name)
@@ -210,16 +192,11 @@ class RabbitPuppy {
                 val queue = matcher.group(1)
                 val vhost = matcher.group(2)
                 val data = entry.value
-                log.debug("Ensuring queue $queue exists at vhost $vhost with configuration $data")
                 val auth = authForResource(config.users, config.permissions, vhost, queue)
                 try {
                     val existing = client.getQueue(vhost, queue, auth.first, auth.second)
-                    ensurePresent<QueueData>("queue", name, data, existing, errors, {
-                        log.info("Creating queue $queue at vhost $vhost with configuration $data")
-                        client.createQueue(vhost, queue, data, auth.first, auth.second)
-                    })
-                } catch (e: RestClientException) {
-                    log.error("Exception when ensuring queue $queue", e)
+                    action.queue(queue, vhost, data, existing, auth)
+                } catch (e: Exception) {
                     errors.add(e)
                 }
 
@@ -231,7 +208,7 @@ class RabbitPuppy {
         }
     }
 
-    private fun createBindings(config: RabbitConfig, errors: MutableList<Throwable>) {
+    private fun bindings(action: RabbitAction, config: RabbitConfig, errors: MutableList<Throwable>) {
         config.bindings.entries.forEach { entry ->
             val name = entry.key
             val matcher = atVHostPattern.matcher(name)
@@ -241,22 +218,15 @@ class RabbitPuppy {
                 val auth = authForResource(config.users, config.permissions, vhost, exchange)
                 try {
                     val existingVhost = client.getBindings(vhost, auth.first, auth.second)
-                    val existing = existingVhost.getOrElse(exchange, {ArrayList<BindingData>()})
-                    entry.value.forEach { bindingData ->
-                        log.info("Ensuring binding $name $bindingData")
-                        if (!existing.contains(bindingData)) {
-                            log.info("Creating binding $name : $bindingData")
-                            try {
-                                client.createBinding(vhost, exchange, bindingData, auth.first, auth.second)
-                            } catch (e: RestClientException) {
-                                log.error("Failed to create binding $name $bindingData: ${e.message}")
-                                errors.add(e)
-                            }
-
+                    entry.value.forEach { binding ->
+                        try {
+                            action.binding(exchange, vhost, binding, existingVhost, auth)
+                        } catch (e: Exception) {
+                            errors.add(e)
                         }
                     }
-                } catch (e: RestClientException) {
-                    log.error("Failed to fetch bindings from $name", e)
+                } catch (e: Exception) {
+                    log.error("Failed to fetch existing bindings from $name", e)
                     errors.add(e)
                 }
 
@@ -269,57 +239,11 @@ class RabbitPuppy {
     }
 
     /**
-     * Ensures that the configured resource is present on the broker.
-     * Throws exception if creation failed, or resource exists with settings that does not match expected configuration.
-     */
-    private fun <D> ensurePresent(type: String, name: String, data: D, existing: Map<String, D>, errors: MutableList<Throwable>, create: () -> Unit) {
-        if (existing.containsKey(name)) {
-            if (existing[name] != data) {
-                val error = "$type '$name' exists but with wrong configuration: $existing, expected: $data"
-                log.error(error)
-                errors.add(InvalidConfigurationException(error))
-            }
-        } else {
-            try {
-                create()
-            } catch (e: RestClientException) {
-                log.error("Failed to create $type '$name': ${e.message}".format(type, name, e.message))
-                errors.add(e)
-            }
-
-        }
-    }
-
-    /**
-     * Ensures that the configured resource is present on the broker.
-     * Throws exception if creation failed, or resource exists with settings that does not match expected configuration.
-     */
-    private fun <D> ensurePresent(type: String, name: String, data: D, existing: Optional<D>, errors: MutableList<Throwable>, create: () -> Unit) {
-        if (existing.isPresent) {
-            if (existing.get() != data) {
-                val error = "$type '$name' exists but with wrong configuration: ${existing.get()}, expected: $data"
-                log.error(error)
-                errors.add(InvalidConfigurationException(error))
-            }
-        } else {
-            try {
-                create()
-            } catch (e: RestClientException) {
-                log.error("Failed to create $type '$name': ${e.message}")
-                errors.add(e)
-            }
-
-        }
-    }
-
-    /**
      * Copies known passwords onto users received from broker, since we get only password hash from it, so that
      * ensurePresent does not fail due to differences in the password field.
 
      * @param existing   Existing users
-     * *
      * @param fromConfig Users from input configuration
-     * *
      * @return Existing users with known passwords appended
      */
     private fun withKnownPasswords(existing: Map<String, UserData>,
@@ -332,14 +256,6 @@ class RabbitPuppy {
 
     /**
      * Attempts to find a user in the given configuration with rights to configure the requested resource.
-
-     * @param permissions  user permissions
-     * *
-     * @param vhost        vhost name
-     * *
-     * @param resourceName resource name
-     * *
-     * @return Optional of user with creation rights, or Optional.empty() if not found.
      */
     private fun authForResource(users: Map<String, UserData>,
                                 permissions: Map<String, PermissionsData>,

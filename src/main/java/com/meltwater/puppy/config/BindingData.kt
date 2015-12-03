@@ -1,6 +1,6 @@
 package com.meltwater.puppy.config
 
-import java.util.HashMap
+import java.util.*
 
 data class BindingData(var destination: String? = "",
                        var destination_type: String? = "",

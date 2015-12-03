@@ -12,7 +12,6 @@ import javax.ws.rs.core.Response.Status
 
 class RestClientException : Exception {
     constructor(s: String, e: Exception) : super(s, e)
-
     constructor(s: String) : super(s)
 }
 
@@ -89,10 +88,16 @@ open class RabbitRestClient(brokerAddress: String, brokerUsername: String, broke
     @Throws(RestClientException::class)
     open fun getBindings(vhost: String,
                     user: String,
-                    pass: String): Map<String, List<BindingData>> = parser.bindings(
-            expect(requestBuilder.nextWithAuthentication(user, pass).request(PATH_BINDINGS_VHOST, of(
-                    "vhost", vhost)).get(),
-                    Status.OK.statusCode))
+                    pass: String): Map<String, List<BindingData>> {
+        if (getVirtualHosts().contains(vhost)) {
+            return parser.bindings(
+                    expect(requestBuilder.nextWithAuthentication(user, pass).request(PATH_BINDINGS_VHOST, of(
+                            "vhost", vhost)).get(),
+                            Status.OK.statusCode))
+        } else {
+            return HashMap()
+        }
+    }
 
     @Throws(RestClientException::class)
     open fun getVirtualHosts(): Map<String, VHostData> = parser.vhosts(

@@ -3,12 +3,10 @@ package com.meltwater.puppy.config.reader
 import com.google.common.base.Joiner
 import com.meltwater.puppy.config.BindingData
 import com.meltwater.puppy.config.RabbitConfig
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 import org.yaml.snakeyaml.constructor.ConstructorException
-
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files

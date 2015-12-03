@@ -2,11 +2,8 @@ package com.meltwater.puppy.rest
 
 import com.google.gson.Gson
 import com.meltwater.puppy.config.*
-
+import java.util.*
 import javax.ws.rs.core.Response
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.Optional
 
 class RabbitRestResponseParser {
 
