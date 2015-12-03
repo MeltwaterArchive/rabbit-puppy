@@ -31,4 +31,15 @@ public class NiceJavaApiSpec {{
             new RabbitPuppy(rabbitRestClient).apply(rabbitConfig);
         });
     });
+
+    // TODO This is not at maximum Nice at the moment due to Kotlin's Unit.INSTANCE, will think about if that is okay...
+    /*
+    describe("creating configuration manually", it -> {
+
+        // This test is mostly a compile-time test, meant to check that the Kotlin/Java integration works and looks nice.
+        it.should("has a nice Java API", expect -> {
+
+        });
+    });
+    */
 }}
