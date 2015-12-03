@@ -1,4 +1,8 @@
 # rabbit-puppy Release Notes
+## next
+### Changes
+- No changes
+
 ## v0.1.3 - 2015-12-03
 ### Fixes
 - Main class error when running jar
