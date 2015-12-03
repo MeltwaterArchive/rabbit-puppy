@@ -1,4 +1,8 @@
 # rabbit-puppy Release Notes
+## next
+### Changes
+- No changes
+
 ## v0.1.4 - 2015-12-03
 ### Fixes
 - Issue when choosing user to configure resource with
