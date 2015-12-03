@@ -126,7 +126,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.meltwater.puppy.Main</mainClass>
+                            <mainClass>com.meltwater.puppy.MainKt</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
