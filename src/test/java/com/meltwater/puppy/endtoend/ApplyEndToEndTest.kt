@@ -13,7 +13,6 @@ import com.meltwater.puppy.rest.RabbitRestClient.Companion.PATH_QUEUES_SINGLE
 import com.meltwater.puppy.rest.RabbitRestClient.Companion.PATH_USERS_SINGLE
 import com.meltwater.puppy.rest.RabbitRestClient.Companion.PATH_VHOSTS_SINGLE
 import com.meltwater.puppy.rest.RestRequestBuilder
-import org.hamcrest.Matchers
 import org.junit.runner.RunWith
 import java.io.IOException
 import java.util.*

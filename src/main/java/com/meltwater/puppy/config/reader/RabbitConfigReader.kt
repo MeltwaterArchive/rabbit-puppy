@@ -54,12 +54,24 @@ class RabbitConfigReader {
             val bindings = ArrayList<BindingData>()
             (rabbitConfig.bindings[key] as List<Any>).forEach { b ->
                 val bindingMap = b as Map<String, Any>
-                bindings.add(BindingData(
-                        if (bindingMap["destination"] != null) bindingMap["destination"].toString() else null,
-                        if (bindingMap["destination_type"] != null) DestinationType.valueOf(bindingMap["destination_type"].toString())
-                            else DestinationType.MISSING,
-                        if (bindingMap["routing_key"] != null) bindingMap["routing_key"].toString() else null,
-                        if (bindingMap.contains("arguments")) bindingMap["arguments"] as MutableMap<String, Any> else HashMap()))
+                val destType = bindingMap["destination_type"]
+                try {
+                    val destTypeEnum =
+                            if (destType != null) DestinationType.valueOf(destType.toString())
+                            else DestinationType.MISSING
+
+                    bindings.add(BindingData(
+                            bindingMap["destination"]?.toString(),
+                            destTypeEnum,
+                            bindingMap["routing_key"]?.toString(),
+                            bindingMap.getOrElse("arguments", {HashMap<String, Any>()}) as MutableMap<String, Any>))
+                }
+                catch (e: IllegalArgumentException) {
+                    val error = "Invalid destination_type: $destType, must be one of: ${Joiner.on(',').join(
+                            DestinationType.values.copyOfRange(1, DestinationType.values.size))}"
+                    log.error(error)
+                    throw RabbitConfigException(error)
+                }
             }
             rabbitConfig.bindings.put(key, bindings)
         }

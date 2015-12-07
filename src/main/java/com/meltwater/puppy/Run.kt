@@ -103,7 +103,9 @@ private fun apply(command: CommandApply): Boolean {
         log.error("Failed to read configuration, exiting")
         return false
     } catch (e: RabbitPuppyException) {
-        log.error("Encountered ${e.errors.size} errors, exiting")
+        val errs = StringBuilder()
+        e.errors.forEach { ex -> errs.append("\n - ${ex.message}") }
+        log.error("Encountered ${e.errors.size} errors, exiting: ${errs.toString()}")
         return false
     }
 }
@@ -123,7 +125,9 @@ private fun verify(command: CommandVerify): Boolean {
         log.error("Failed to read configuration, exiting")
         return false
     } catch (e: RabbitPuppyException) {
-        log.error("Encountered ${e.errors.size} errors, exiting")
+        val errs = StringBuilder()
+        e.errors.forEach { ex -> errs.append("\n - ${ex.message}") }
+        log.error("Encountered ${e.errors.size} errors, exiting: ${errs.toString()}")
         return false
     }
 }

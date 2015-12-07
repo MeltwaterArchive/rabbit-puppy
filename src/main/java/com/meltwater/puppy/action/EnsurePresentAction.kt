@@ -12,7 +12,7 @@ class EnsurePresentAction(val client: RabbitRestClient) : RabbitAction {
     private val log = LoggerFactory.getLogger(EnsurePresentAction::class.java)
 
     override fun vhost(name: String, data: VHostData, existing: Map<String, VHostData>) {
-        log.info("Ensuring vhost $name exists with configuration $data")
+        log.debug("Ensuring vhost $name exists with configuration $data")
         ensurePresent("vhost", name, data, existing) {
             log.info("Creating vhost $name")
             client.createVirtualHost(name, data)
@@ -20,7 +20,7 @@ class EnsurePresentAction(val client: RabbitRestClient) : RabbitAction {
     }
 
     override fun user(name: String, data: UserData, existing: Map<String, UserData>) {
-        log.info("Ensuring user $name exists")
+        log.debug("Ensuring user $name exists")
         ensurePresent("user", name, data, existing) {
             log.info("Creating user $name")
             client.createUser(name, data)
@@ -28,7 +28,7 @@ class EnsurePresentAction(val client: RabbitRestClient) : RabbitAction {
     }
 
     override fun permissions(user: String, vhost: String, data: PermissionsData, existing: Map<String, PermissionsData>) {
-        log.info("Ensuring user $user at vhost $vhost has permissions $data")
+        log.debug("Ensuring user $user at vhost $vhost has permissions $data")
         ensurePresent("permissions", "$user@$vhost", data, existing) {
             log.info("Setting permissions for user $user at vhost $vhost")
             client.createPermissions(user, vhost, data)
@@ -37,7 +37,7 @@ class EnsurePresentAction(val client: RabbitRestClient) : RabbitAction {
 
     override fun exchange(exchange: String, vhost: String, data: ExchangeData, existing: Optional<ExchangeData>,
                           auth: Pair<String, String>) {
-        log.info("Ensuring exchange $exchange exists at vhost $vhost with configuration $data")
+        log.debug("Ensuring exchange $exchange exists at vhost $vhost with configuration $data")
         ensurePresent("exchange", "$exchange@$vhost", data, existing) {
             log.info("Creating exchange $exchange at vhost $vhost with configuration $data")
             client.createExchange(vhost, exchange, data, auth.first, auth.second)
@@ -46,7 +46,7 @@ class EnsurePresentAction(val client: RabbitRestClient) : RabbitAction {
 
     override fun queue(queue: String, vhost: String, data: QueueData, existing: Optional<QueueData>,
                        auth: Pair<String, String>) {
-        log.info("Ensuring queue $queue exists at vhost $vhost with configuration $data")
+        log.debug("Ensuring queue $queue exists at vhost $vhost with configuration $data")
         ensurePresent("queue", "$queue@$vhost", data, existing) {
             log.info("Creating queue $queue at vhost $vhost with configuration $data")
             client.createQueue(vhost, queue, data, auth.first, auth.second)
@@ -57,7 +57,7 @@ class EnsurePresentAction(val client: RabbitRestClient) : RabbitAction {
                          auth: Pair<String, String>) {
         val existingExchange = existing.getOrElse(exchange, { ArrayList<BindingData>() })
         var name = "$exchange@$vhost"
-        log.info("Ensuring exchange $name has binding $data")
+        log.debug("Ensuring exchange $name has binding $data")
         if (!existingExchange.contains(data)) {
             log.info("Creating binding $name : $data")
             client.createBinding(vhost, exchange, data, auth.first, auth.second)
@@ -71,7 +71,7 @@ class EnsurePresentAction(val client: RabbitRestClient) : RabbitAction {
     private fun <D> ensurePresent(type: String, name: String, data: D, existing: Map<String, D>, create: () -> Unit) {
         if (existing.containsKey(name)) {
             if (existing[name] != data) {
-                val error = "$type '$name' exists but with wrong configuration: $existing, expected: $data"
+                val error = "$type '$name' exists but with wrong configuration: ${existing[name]}, expected: $data"
                 log.error(error)
                 throw InvalidConfigurationException(error)
             }

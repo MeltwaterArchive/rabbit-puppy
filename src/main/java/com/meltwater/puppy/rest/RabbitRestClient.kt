@@ -198,7 +198,9 @@ open class RabbitRestClient(brokerAddress: String, brokerUsername: String, broke
                     MediaType.APPLICATION_JSON_TYPE)),
                     Status.CREATED.statusCode)
         } else {
-            throw RestClientException("No destination_type specified for binding at $exchange@$vhost: ${bindingData.destination}")
+            val error = "No destination_type specified for binding at $exchange@$vhost: ${bindingData.destination}"
+            log.error(error)
+            throw RestClientException(error)
         }
     }
 
@@ -231,7 +233,9 @@ open class RabbitRestClient(brokerAddress: String, brokerUsername: String, broke
     @Throws(RestClientException::class)
     private fun <D> require(type: String, name: String, property: String, value: D?) {
         if (value == null) {
-            throw RestClientException("$type $name missing required field: $property")
+            val error = "$type $name missing required field: $property"
+            log.error(error)
+            throw RestClientException(error)
         }
     }
 }
