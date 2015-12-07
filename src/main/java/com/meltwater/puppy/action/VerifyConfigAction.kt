@@ -37,7 +37,7 @@ class VerifyConfigAction() : RabbitAction {
     override fun queue(queue: String, vhost: String, data: QueueData, existing: Optional<QueueData>,
                        auth: Pair<String, String>) {
         log.info("Verifying that queue $queue exists on vhost $vhost with configuration $data")
-        ensurePresent("exchange", "$queue@$vhost", data, existing,
+        ensurePresent("queue", "$queue@$vhost", data, existing,
                 "Queue $queue at vhost $vhost is missing, will be created on apply")
     }
 
