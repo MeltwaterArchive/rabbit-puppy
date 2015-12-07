@@ -1,7 +1,13 @@
 # rabbit-puppy Release Notes
-## next
+## v0.2.0 - 2015-12-07
 ### Changes
 - Added `apply` and `verify` commands
+- Revert changes made to Java API after switch to Kotlin
+- Must specify empty hash if no properties specified e.g. `arguments: {}`
+
+### Fixes
+- More descriptive and compact logging
+- Fixed several null-pointer errors
 
 ## v0.1.4 - 2015-12-03
 ### Fixes
