@@ -1,9 +1,11 @@
 package com.meltwater.puppy.config
 
-import java.util.*
+import java.util.HashMap
+
+enum class DestinationType { MISSING, exchange, queue }
 
 data class BindingData(var destination: String? = "",
-                       var destination_type: String? = "",
+                       var destination_type: DestinationType? = DestinationType.MISSING,
                        var routing_key: String? = "",
                        var arguments: MutableMap<String, Any> = HashMap()) {
 

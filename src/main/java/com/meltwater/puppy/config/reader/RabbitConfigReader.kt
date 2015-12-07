@@ -2,6 +2,7 @@ package com.meltwater.puppy.config.reader
 
 import com.google.common.base.Joiner
 import com.meltwater.puppy.config.BindingData
+import com.meltwater.puppy.config.DestinationType
 import com.meltwater.puppy.config.RabbitConfig
 import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
@@ -55,7 +56,8 @@ class RabbitConfigReader {
                 val bindingMap = b as Map<String, Any>
                 bindings.add(BindingData(
                         if (bindingMap["destination"] != null) bindingMap["destination"].toString() else null,
-                        if (bindingMap["destination_type"] != null) bindingMap["destination_type"].toString() else null,
+                        if (bindingMap["destination_type"] != null) DestinationType.valueOf(bindingMap["destination_type"].toString())
+                            else DestinationType.MISSING,
                         if (bindingMap["routing_key"] != null) bindingMap["routing_key"].toString() else null,
                         if (bindingMap.contains("arguments")) bindingMap["arguments"] as MutableMap<String, Any> else HashMap()))
             }

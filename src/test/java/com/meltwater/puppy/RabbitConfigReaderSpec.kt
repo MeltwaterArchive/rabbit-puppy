@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableMap.of
 import com.insightfullogic.lambdabehave.JunitSuiteRunner
 import com.insightfullogic.lambdabehave.Suite.describe
 import com.meltwater.puppy.config.*
+import com.meltwater.puppy.config.DestinationType.exchange
+import com.meltwater.puppy.config.DestinationType.queue
 import com.meltwater.puppy.config.reader.RabbitConfigException
 import com.meltwater.puppy.config.reader.RabbitConfigReader
 import org.hamcrest.Matchers.hasEntry
@@ -84,12 +86,12 @@ class RabbitConfigReaderSpec {
                         .`is`(2)
                         .and(config.bindings["exchange.in@input"])
                         .hasSize(1)
-                        .contains(BindingData("queue-in", "queue", "#", of<String, Any>("foo", "bar")))
+                        .contains(BindingData("queue-in", queue, "#", of<String, Any>("foo", "bar")))
                         .and(config.bindings["exchange.out@output"])
                         .hasSize(2)
                         .containsInAnyOrder(
-                                BindingData("queue-out", "queue", ""),
-                                BindingData("exchange.out.direct", "exchange", "#"))
+                                BindingData("queue-out", queue, ""),
+                                BindingData("exchange.out.direct", exchange, "#"))
             }
         }
 

@@ -1,7 +1,7 @@
 # rabbit-puppy Release Notes
 ## next
 ### Changes
-- No changes
+- Added `apply` and `verify` commands
 
 ## v0.1.4 - 2015-12-03
 ### Fixes

@@ -117,7 +117,7 @@ class RabbitRestResponseParser {
                 }
                 val bindingData = BindingData(
                         map["destination"] as String,
-                        map["destination_type"] as String,
+                        DestinationType.valueOf(map["destination_type"] as String),
                         map["routing_key"] as String,
                         map["arguments"] as MutableMap<String, Any>)
                 bindings[exchange]!!.add(bindingData)

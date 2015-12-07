@@ -47,7 +47,7 @@ class EnsurePresentAction(val client: RabbitRestClient) : RabbitAction {
     override fun queue(queue: String, vhost: String, data: QueueData, existing: Optional<QueueData>,
                        auth: Pair<String, String>) {
         log.info("Ensuring queue $queue exists at vhost $vhost with configuration $data")
-        ensurePresent("exchange", "$queue@$vhost", data, existing) {
+        ensurePresent("queue", "$queue@$vhost", data, existing) {
             log.info("Creating exchange $queue at vhost $vhost with configuration $data")
             client.createQueue(vhost, queue, data, auth.first, auth.second)
         }

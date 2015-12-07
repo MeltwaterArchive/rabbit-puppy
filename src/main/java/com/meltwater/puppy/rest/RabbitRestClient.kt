@@ -176,7 +176,7 @@ open class RabbitRestClient(brokerAddress: String, brokerUsername: String, broke
         require("Binding", "$user@$vhost", "destination_type", bindingData.destination_type)
         require("Binding", "$user@$vhost", "routing_key", bindingData.routing_key)
 
-        if (bindingData.destination_type == "queue") {
+        if (bindingData.destination_type == DestinationType.queue) {
             expect(requestBuilder
                     .nextWithAuthentication(user, pass)
                     .request(PATH_BINDING_QUEUE, of<String, String>(
@@ -188,7 +188,7 @@ open class RabbitRestClient(brokerAddress: String, brokerUsername: String, broke
                             "arguments", bindingData.arguments)),
                             MediaType.APPLICATION_JSON_TYPE)),
                     Status.CREATED.statusCode)
-        } else if (bindingData.destination_type == "exchange") {
+        } else if (bindingData.destination_type == DestinationType.exchange) {
             expect(requestBuilder.nextWithAuthentication(user, pass).request(PATH_BINDING_EXCHANGE, of<String, String>(
                     "vhost", vhost,
                     "exchange", exchange,
@@ -198,7 +198,7 @@ open class RabbitRestClient(brokerAddress: String, brokerUsername: String, broke
                     MediaType.APPLICATION_JSON_TYPE)),
                     Status.CREATED.statusCode)
         } else {
-            throw RestClientException("Invalid binding destination: ${bindingData.destination}")
+            throw RestClientException("No destination_type specified for binding at $exchange@$vhost: ${bindingData.destination}")
         }
     }
 

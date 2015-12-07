@@ -5,6 +5,8 @@ import com.google.common.collect.Lists.newArrayList
 import com.insightfullogic.lambdabehave.JunitSuiteRunner
 import com.insightfullogic.lambdabehave.Suite.describe
 import com.meltwater.puppy.config.*
+import com.meltwater.puppy.config.DestinationType.queue
+import com.meltwater.puppy.config.ExchangeType.topic
 import com.meltwater.puppy.rest.RabbitRestClient
 import org.junit.runner.RunWith
 import org.mockito.Mockito.*
@@ -42,7 +44,7 @@ class RabbitPuppySpec {
             val VHOST_DATA = VHostData(true)
 
             val puppy = RabbitPuppy(rabbitRestClient)
-            val rabbitConfig = RabbitConfig().addVhost(VHOST) { tracing = true }
+            val rabbitConfig = RabbitConfig().addVhost(VHOST, VHostData(tracing=true))
 
             it.should("creates vhost if it doesn't exist") { expect ->
                 `when`(rabbitRestClient.getVirtualHosts()).thenReturn(of<String, VHostData>())
@@ -77,7 +79,7 @@ class RabbitPuppySpec {
         describe("a rabbit-puppy configured to create a user") { it ->
 
             val data = UserData()
-            val rabbitConfig = RabbitConfig().addUser("dan") {}
+            val rabbitConfig = RabbitConfig().addUser("dan", UserData())
             val puppy = RabbitPuppy(rabbitRestClient)
 
             it.should("create it if it doesn't exist") { expect ->
@@ -112,7 +114,7 @@ class RabbitPuppySpec {
         describe("a rabbit-puppy configured to create permissions") { it ->
 
             val data = PermissionsData()
-            val rabbitConfig = RabbitConfig().addPermissions("dan", "test") {}
+            val rabbitConfig = RabbitConfig().addPermissions("dan", "test", PermissionsData())
             val puppy = RabbitPuppy(rabbitRestClient)
 
             it.should("create it if it doesn't exist") { expect ->
@@ -146,10 +148,10 @@ class RabbitPuppySpec {
 
         describe("a rabbit-puppy configured to create an exchange") { it ->
 
-            val data = ExchangeData(ExchangeType.topic, true, false, false, HashMap<String, Any>())
+            val data = ExchangeData(topic, true, false, false, HashMap<String, Any>())
 
             val puppy = RabbitPuppy(rabbitRestClient)
-            val rabbitConfig = RabbitConfig().addExchange("foo", "vhost") { type = ExchangeType.topic }
+            val rabbitConfig = RabbitConfig().addExchange("foo", "vhost", ExchangeData(type=topic))
 
             it.should("create exchange if it doesn't exist") { expect ->
                 `when`(rabbitRestClient.getExchange("vhost", "foo", USER, PASS)).thenReturn(Optional.empty<ExchangeData>())
@@ -190,7 +192,7 @@ class RabbitPuppySpec {
         describe("a rabbit-puppy configured to create a queue") { it ->
 
             val data = QueueData()
-            val rabbitConfig = RabbitConfig().addQueue("queue", "test") { }
+            val rabbitConfig = RabbitConfig().addQueue("queue", "test", QueueData())
             val puppy = RabbitPuppy(rabbitRestClient)
 
             it.should("create it if it doesn't exist") { expect ->
@@ -230,12 +232,11 @@ class RabbitPuppySpec {
 
         describe("a rabbit-puppy configured to create a binding") { it ->
 
-            val data = BindingData("q", "queue", "#", HashMap<String, Any>())
-            val rabbitConfig = RabbitConfig().addBinding("ex", "test") {
-                destination = data.destination
-                destination_type = data.destination_type
-                routing_key = data.routing_key
-            }
+            val data = BindingData("q", queue, "#", HashMap<String, Any>())
+            val rabbitConfig = RabbitConfig().addBinding("ex", "test", BindingData(
+                destination = data.destination,
+                destination_type = data.destination_type,
+                routing_key = data.routing_key))
             val puppy = RabbitPuppy(rabbitRestClient)
 
             it.should("create it if it doesn't exist") { expect ->
@@ -252,7 +253,7 @@ class RabbitPuppySpec {
 
             it.should("doesn't create it if it exists") { expect ->
                 `when`(rabbitRestClient.getBindings("test", USER, PASS)).thenReturn(
-                        of<String, List<BindingData>>("ex", newArrayList(BindingData("q", "queue", "#", HashMap<String, Any>()))))
+                        of<String, List<BindingData>>("ex", newArrayList(BindingData("q", queue, "#", HashMap<String, Any>()))))
 
                 puppy.apply(rabbitConfig)
 
@@ -266,28 +267,18 @@ class RabbitPuppySpec {
         describe("a rabbit-puppy creating a resource on a new vhost") { it ->
 
             fun newRabbitConfig() = RabbitConfig()
-                    .addUser("userA") {
-                        admin = true
-                        password = "passA"
-                    }.addUser("userB") {
-                        admin = true
-                        password = "passB"
-                    }.addUser("userC") {
-                        admin = true
-                        password = "passC"
-                    }.addPermissions("userA", "test") {
-                        configure = "exA.*"
-                    }.addPermissions("userB", "test") {
-                        configure = "exB.*"
-                    }.addPermissions("userC", "test") {
-                        configure = ".*exC.*"
-                    }
+                    .addUser("userA", UserData(admin = true, password = "passA"))
+                    .addUser("userB", UserData(admin = true, password = "passB"))
+                    .addUser("userC", UserData(admin = true, password = "passC"))
+                    .addPermissions("userA", "test", PermissionsData(configure = "exA.*"))
+                    .addPermissions("userB", "test", PermissionsData(configure = "exB.*"))
+                    .addPermissions("userC", "test", PermissionsData(configure = ".*exC.*"))
 
             val puppy = RabbitPuppy(rabbitRestClient)
 
             it.uses("exA", "userA", "passA").and("exB123abc", "userB", "passB").and("foo.exC_bar", "userC", "passC").toShow("creates resource %s with user with correct permissions: %s") { expect, exchange, user, pass ->
                 val exchangeData = ExchangeData()
-                val rabbitConfig = newRabbitConfig().addExchange(exchange, "test") { }
+                val rabbitConfig = newRabbitConfig().addExchange(exchange, "test", ExchangeData())
 
                 `when`(rabbitRestClient.getPermissions()).thenReturn(HashMap<String, PermissionsData>())
                 `when`(rabbitRestClient.getUsers()).thenReturn(HashMap<String, UserData>())

@@ -17,7 +17,13 @@ If a _vhost_, _user_, _permission_, _queue_ or _exchange_ already exists, but wi
 To apply `config.yaml` to a broker at `localhost` with the admin user `guest`:
 
 ```
-java -jar rabbit-puppy-<version>.jar --broker http://localhost:15672/ --user guest --pass guest --config config.yaml
+java -jar rabbit-puppy-<version>.jar apply --broker http://localhost:15672/ --user guest --pass guest --config config.yaml
+```
+
+To check that the broker is correctly configured:
+
+```
+java -jar rabbit-puppy-<version>.jar verify --broker http://localhost:15672/ --user guest --pass guest --config config.yaml
 ```
 
 # configuration

@@ -28,7 +28,7 @@ class VerifyConfigAction() : RabbitAction {
     }
 
     override fun exchange(exchange: String, vhost: String, data: ExchangeData, existing: Optional<ExchangeData>,
-                          Cauth: Pair<String, String>) {
+                          auth: Pair<String, String>) {
         log.info("Verifying that exchange $exchange exists on vhost $vhost with configuration $data")
         ensurePresent("exchange", "$exchange@$vhost", data, existing,
                 "Exchange $exchange at vhost $vhost is missing, will be created on apply")

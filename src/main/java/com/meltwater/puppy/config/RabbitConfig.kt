@@ -10,39 +10,34 @@ data class RabbitConfig(
         var queues: MutableMap<String, QueueData> = HashMap(),
         var bindings: MutableMap<String, MutableList<BindingData>> = HashMap()) {
 
-    fun <T : Any> initProperties(t: T, init: T.() -> Unit): T {
-        t.init()
-        return t
-    }
-
-    fun addUser(name: String, init: UserData.() -> Unit): RabbitConfig {
-        users.put(name, initProperties(UserData(), init))
+    fun addUser(name: String, data: UserData): RabbitConfig {
+        users.put(name, data)
         return this
     }
 
-    fun addVhost(name: String, init: VHostData.() -> Unit): RabbitConfig {
-        vhosts.put(name, initProperties(VHostData(), init))
+    fun addVhost(name: String, data: VHostData): RabbitConfig {
+        vhosts.put(name, data)
         return this
     }
 
-    fun addPermissions(user: String, vhost: String, init: PermissionsData.() -> Unit): RabbitConfig {
-        permissions.put("$user@$vhost", initProperties(PermissionsData(), init))
+    fun addPermissions(user: String, vhost: String, data: PermissionsData): RabbitConfig {
+        permissions.put("$user@$vhost", data)
         return this
     }
 
-    fun addExchange(name: String, vhost: String, init: ExchangeData.() -> Unit): RabbitConfig {
-        exchanges.put("$name@$vhost", initProperties(ExchangeData(), init))
+    fun addExchange(name: String, vhost: String, data: ExchangeData): RabbitConfig {
+        exchanges.put("$name@$vhost", data)
         return this
     }
 
-    fun addQueue(name: String, vhost: String, init: QueueData.() -> Unit): RabbitConfig {
-        queues.put("$name@$vhost", initProperties(QueueData(), init))
+    fun addQueue(name: String, vhost: String, data: QueueData): RabbitConfig {
+        queues.put("$name@$vhost", data)
         return this
     }
 
-    fun addBinding(exchange: String, vhost: String, init: BindingData.() -> Unit): RabbitConfig {
+    fun addBinding(exchange: String, vhost: String, data: BindingData): RabbitConfig {
         val key = "$exchange@$vhost"
-        bindings.getOrPut(key, {arrayListOf()}).add(initProperties(BindingData(), init))
+        bindings.getOrPut(key, {arrayListOf()}).add(data)
         return this
     }
 }
