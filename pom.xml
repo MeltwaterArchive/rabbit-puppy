@@ -16,7 +16,7 @@
         <kotlin.version>1.0.0-beta-2423</kotlin.version>
         <!-- For now, also update scr/test/resources/test.properties to match these -->
         <docker.rabbit.host>localhost</docker.rabbit.host>
-        <docker.rabbit.port>15673</docker.rabbit.port>
+        <docker.rabbit.port>16672</docker.rabbit.port>
     </properties>
 
 
