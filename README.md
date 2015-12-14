@@ -154,7 +154,7 @@ rabbitpuppy:
         - rabbitmq:rabbit
     volumes:
         - ./config:/config
-    command: java -jar /rabbit-puppy-0.0.1-SNAPSHOT.jar -b http://rabbit:15672/ -u guest -p guest -c /config/conf.yaml -w 60
+    command: apply -b http://rabbit:15672/ -u guest -p guest -c /config/conf.yaml -w 60
 ```
 
 In the folder containing `docker-compose.yml`, create the `config` directory and copy a configuration file `conf.yaml` to it. See the **configuration** section above for some example configuration files.
