@@ -35,7 +35,7 @@ exchanges:
         type: topic
 
 queues:
-    queue-demo@/:
+    queue-demo@/: {}
 
 bindings:
     exchange.demo@/:
