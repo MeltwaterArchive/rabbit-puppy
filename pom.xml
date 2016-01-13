@@ -203,7 +203,7 @@
                                         <method>GET</method>
                                         <status>200..399</status>
                                     </http>
-                                    <time>20000</time>
+                                    <time>60000</time>
                                     <shutdown>1000</shutdown>
                                 
                                 </wait>
