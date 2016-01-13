@@ -1,7 +1,7 @@
 # rabbit-puppy Release Notes
-## next
-### Changes
-- No changes
+## v0.2.1 - 2016-01-13
+### Fixes
+- Fixes #14 x-messages-ttl is parsed as Double
 
 ## v0.2.0 - 2015-12-07
 ### Changes
