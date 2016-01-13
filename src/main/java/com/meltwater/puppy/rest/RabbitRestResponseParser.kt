@@ -80,9 +80,9 @@ class RabbitRestResponseParser {
                     map["durable"] as Boolean,
                     map["auto_delete"] as Boolean,
                     map["internal"] as Boolean,
-                    map["arguments"] as MutableMap<String, Any>))
+                    convertArgumentTypes(map["arguments"] as MutableMap<String, Any>)))
         } catch (e: Exception) {
-            throw RestClientException("Error parsing exchanges response", e)
+            throw RestClientException("Error parsing exchanges response: $e")
         }
 
     }
@@ -97,9 +97,9 @@ class RabbitRestResponseParser {
             return Optional.of(QueueData(
                     map["durable"] as Boolean,
                     map["auto_delete"] as Boolean,
-                    map["arguments"] as MutableMap<String, Any>))
+                    convertArgumentTypes(map["arguments"] as MutableMap<String, Any>)))
         } catch (e: Exception) {
-            throw RestClientException("Error parsing exchanges response", e)
+            throw RestClientException("Error parsing exchanges response: $e")
         }
 
     }
@@ -119,13 +119,28 @@ class RabbitRestResponseParser {
                         map["destination"] as String,
                         DestinationType.valueOf(map["destination_type"] as String),
                         map["routing_key"] as String,
-                        map["arguments"] as MutableMap<String, Any>)
+                        convertArgumentTypes(map["arguments"] as MutableMap<String, Any>))
                 bindings[exchange]!!.add(bindingData)
             }
             return bindings
         } catch (e: Exception) {
-            throw RestClientException("Error parsing bindings response", e)
+            throw RestClientException("Error parsing bindings response: $e")
         }
+    }
 
+    fun convertArgumentTypes(arguments: MutableMap<String, Any>) : MutableMap<String, Any> {
+        try {
+            for (key in arguments.keys) {
+                if (key.equals("x-message-ttl")) {
+                    val value: Any? = arguments[key]
+                    if (value is Double) {
+                        arguments[key] = value.toInt()
+                    }
+                }
+            }
+            return arguments
+        } catch (e: Exception) {
+            throw RestClientException("Error parsing arguments in response: $e")
+        }
     }
 }
