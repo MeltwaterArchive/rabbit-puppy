@@ -1,7 +1,7 @@
 # rabbit-puppy Release Notes
-## next
-### Changes
-- No changes
+## v0.2.2 - 2016-01-13
+### Fixes
+- Increased stability of docker integration during tests
 
 ## v0.2.1 - 2016-01-13
 ### Fixes
