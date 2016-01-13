@@ -47,7 +47,7 @@ class VerifyEndToEndTest {
 
         describe("a rabbit-puppy verifying configuration on an empty external broker") { it ->
 
-            fun run() = Run().run("rabbit-puppy", arrayOf("verify",
+            fun verify() = Run().run("rabbit-puppy", arrayOf("verify",
                     "--broker", brokerAddress,
                     "--user", brokerUser,
                     "--pass", brokerPass,
@@ -60,11 +60,11 @@ class VerifyEndToEndTest {
             }
 
             it.should("encounters errors") { expect ->
-                expect.that(run()).`is`(false)
+                expect.that(verify()).`is`(false)
             }
 
             it.should("creates no vhost") { expect ->
-                run()
+                verify()
                 val map = gson.fromJson<Map<Any, Any>>(getString(req, PATH_VHOSTS_SINGLE, of(
                         "vhost", VHOST)),
                         Map::class.java)
@@ -73,7 +73,7 @@ class VerifyEndToEndTest {
             }
 
             it.should("creates no user") { expect ->
-                run()
+                verify()
                 val map = gson.fromJson<Map<Any, Any>>(getString(req, PATH_USERS_SINGLE, of(
                         "user", "test_dan")),
                         Map::class.java)
