@@ -1,4 +1,8 @@
 # rabbit-puppy Release Notes
+## next
+#### Changes
+- No changes
+
 ## 0.2.3 - 2016-02-09
 ### Fixes
 - Fix crash when specifying empty binding list for an exchange
