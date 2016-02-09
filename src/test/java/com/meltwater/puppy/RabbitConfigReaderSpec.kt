@@ -100,5 +100,13 @@ class RabbitConfigReaderSpec {
             it.should("fails nicely") { expect -> expect.exception(RabbitConfigException::class.java) { rabbitConfigReader.read(configFileBad) } }
         }
 
+        describe("a RabbitConfigReader reading example files") { it ->
+
+            it
+                    .uses(File(ClassLoader.getSystemResource("examples/emptybindings.yaml").file))
+                    .toShow("no errors") { expect, conf ->
+                        rabbitConfigReader.read(conf)
+                    }
+        }
     }
 }

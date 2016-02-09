@@ -52,25 +52,26 @@ class RabbitConfigReader {
     private fun parseBindings(rabbitConfig: RabbitConfig): RabbitConfig {
         rabbitConfig.bindings.keys.forEach { key ->
             val bindings = ArrayList<BindingData>()
-            (rabbitConfig.bindings[key] as List<Any>).forEach { b ->
-                val bindingMap = b as Map<String, Any>
-                val destType = bindingMap["destination_type"]
-                try {
-                    val destTypeEnum =
-                            if (destType != null) DestinationType.valueOf(destType.toString())
-                            else DestinationType.MISSING
+            if ((rabbitConfig.bindings[key] as Collection<Any>).size > 0) { // Protect against 0-length Set objects
+                (rabbitConfig.bindings[key] as List<Any>).forEach { b ->
+                    val bindingMap = b as Map<String, Any>
+                    val destType = bindingMap["destination_type"]
+                    try {
+                        val destTypeEnum =
+                                if (destType != null) DestinationType.valueOf(destType.toString())
+                                else DestinationType.MISSING
 
-                    bindings.add(BindingData(
-                            bindingMap["destination"]?.toString(),
-                            destTypeEnum,
-                            bindingMap["routing_key"]?.toString(),
-                            bindingMap.getOrElse("arguments", {HashMap<String, Any>()}) as MutableMap<String, Any>))
-                }
-                catch (e: IllegalArgumentException) {
-                    val error = "Invalid destination_type: $destType, must be one of: ${Joiner.on(',').join(
-                            DestinationType.values.copyOfRange(1, DestinationType.values.size))}"
-                    log.error(error)
-                    throw RabbitConfigException(error)
+                        bindings.add(BindingData(
+                                bindingMap["destination"]?.toString(),
+                                destTypeEnum,
+                                bindingMap["routing_key"]?.toString(),
+                                bindingMap.getOrElse("arguments", { HashMap<String, Any>() }) as MutableMap<String, Any>))
+                    } catch (e: IllegalArgumentException) {
+                        val error = "Invalid destination_type: $destType, must be one of: ${Joiner.on(',').join(
+                                DestinationType.values.copyOfRange(1, DestinationType.values.size))}"
+                        log.error(error)
+                        throw RabbitConfigException(error)
+                    }
                 }
             }
             rabbitConfig.bindings.put(key, bindings)
