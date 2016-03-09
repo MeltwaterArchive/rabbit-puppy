@@ -1,4 +1,8 @@
 # rabbit-puppy Release Notes
+## next
+### Changes
+- No changes
+
 ## 0.3.0 - 2016-03-09
 ### Changes
 - Upgrades Kotlin to 1.0.0
