@@ -68,7 +68,7 @@ class RabbitConfigReader {
                                 bindingMap.getOrElse("arguments", { HashMap<String, Any>() }) as MutableMap<String, Any>))
                     } catch (e: IllegalArgumentException) {
                         val error = "Invalid destination_type: $destType, must be one of: ${Joiner.on(',').join(
-                                DestinationType.values.copyOfRange(1, DestinationType.values.size))}"
+                                DestinationType.values().copyOfRange(1, DestinationType.values().size))}"
                         log.error(error)
                         throw RabbitConfigException(error)
                     }
