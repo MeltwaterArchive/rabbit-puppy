@@ -118,13 +118,13 @@ class ApplyEndToEndTest {
             }
 
             it.should("creates queue") { expect ->
-                val map = gson.fromJson<Map<Any, Any>>(getString(
+                val map: Map<Any, Any> = gson.fromJson<Map<Any, Any>>(getString(
                         req.nextWithAuthentication("test_dan", "torrance"),
                         PATH_QUEUES_SINGLE,
                         of(
                                 "queue", "queue-test",
                                 "vhost", VHOST)),
-                        Map::class.java)
+                        Object::class.java)
 
                 expect.that(map["durable"]).`is`(false)
                         .and(map["auto_delete"]).`is`(true)

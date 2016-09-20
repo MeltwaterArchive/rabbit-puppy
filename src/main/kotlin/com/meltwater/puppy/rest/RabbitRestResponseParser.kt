@@ -74,7 +74,8 @@ class RabbitRestResponseParser {
             return Optional.empty<ExchangeData>()
         }
         try {
-            val map = gson.fromJson<Map<Any, Any>>(response.get().readEntity(String::class.java), Map::class.java)
+            val str: String = response.get().readEntity(String::class.java)
+            val map = gson.fromJson<Map<Any, Any>>(str, Object::class.java) // Object instead of Map to handle duplicate keys
             return Optional.of(ExchangeData(
                     ExchangeType.valueOf(map["type"].toString()),
                     map["durable"] as Boolean,
@@ -93,13 +94,14 @@ class RabbitRestResponseParser {
             return Optional.empty<QueueData>()
         }
         try {
-            val map = gson.fromJson<Map<Any, Any>>(response.get().readEntity(String::class.java), Map::class.java)
+            val str: String = response.get().readEntity(String::class.java)
+            val map = gson.fromJson<Map<Any, Any>>(str, Object::class.java) // Object instead of Map to handle duplicate keys
             return Optional.of(QueueData(
                     map["durable"] as Boolean,
                     map["auto_delete"] as Boolean,
                     convertArgumentTypes(map["arguments"] as MutableMap<String, Any>)))
         } catch (e: Exception) {
-            throw RestClientException("Error parsing exchanges response: $e")
+            throw RestClientException("Error parsing queues response: $e")
         }
 
     }
