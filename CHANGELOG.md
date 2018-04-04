@@ -1,10 +1,15 @@
 # rabbit-puppy Release Notes
 ## next
 ### Changes
-- Uploads artifacts to meltwater.jfrog.io
+- No changes
+
+## 0.4.0 - 2018-03-04
+### Changes
+- Uploads java artifacts to meltwater.jfrog.io
 - Uses amqp-client 3.6.6 and kotlin 1.2.31
-- Updated some more dependencies and maven plugin versions
-- Fixed failng tests bu changing NO_CONTENT to CREATED http codes
+- Updated all jar dependencies and all maven plugin versions
+- Handles duplicate keys in RabbitMQ management API responses
+- Fixed failng tests by changing from NO_CONTENT to CREATED http codes - the RabbitMQ rest API has changed
 
 ## 0.3.0 - 2016-03-09
 ### Changes
