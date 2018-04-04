@@ -88,17 +88,17 @@
     </dependencies>
 
 
+    <!-- TODO upload releases to jcenter instead of artifactory and/or sync to jcenter -->
     <distributionManagement>
         <repository>
-            <id>meltwater-releases</id>
+            <id>central</id>
             <name>meltwater-releases</name>
-            <url>http://maven.meltwater.net/nexus/content/repositories/releases/</url>
-            <uniqueVersion>true</uniqueVersion>
+            <url>https://meltwater.jfrog.io/meltwater/team-horace</url>
         </repository>
         <snapshotRepository>
-            <id>meltwater-snapshots</id>
+            <id>snapshots</id>
             <name>meltwater-snapshots</name>
-            <url>http://maven.meltwater.net/nexus/content/repositories/snapshots/</url>
+            <url>https://meltwater.jfrog.io/meltwater/team-horace</url>
         </snapshotRepository>
     </distributionManagement>
 
