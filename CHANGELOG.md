@@ -1,7 +1,9 @@
 # rabbit-puppy Release Notes
 ## next
 ### Changes
-- No changes
+- Uses amqp-client 3.6.6 and kotlin 1.2.31
+- Updated some more dependencies and maven plugin versions
+- Fixed failng tests bu changing NO_CONTENT to CREATED http codes
 
 ## 0.3.0 - 2016-03-09
 ### Changes

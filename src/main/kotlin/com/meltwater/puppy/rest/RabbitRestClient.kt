@@ -112,7 +112,7 @@ open class RabbitRestClient(brokerAddress: String, brokerUsername: String, broke
     @Throws(RestClientException::class)
     open fun createVirtualHost(virtualHost: String, vHostData: VHostData) {
         expect(requestBuilder.request(PATH_VHOSTS_SINGLE, of("vhost", virtualHost)).put(entity(gson.toJson(vHostData), MediaType.APPLICATION_JSON_TYPE)),
-                Status.NO_CONTENT.statusCode)
+                Status.CREATED.statusCode)
     }
 
     @Throws(RestClientException::class)
@@ -122,7 +122,7 @@ open class RabbitRestClient(brokerAddress: String, brokerUsername: String, broke
         expect(requestBuilder.request(PATH_USERS_SINGLE, of("user", user)).put(entity(gson.toJson(of(
                 "password", userData.password,
                 "tags", if (userData.admin) "administrator" else "")), MediaType.APPLICATION_JSON_TYPE)),
-                Status.NO_CONTENT.statusCode)
+                Status.CREATED.statusCode)
     }
 
     @Throws(RestClientException::class)
@@ -134,7 +134,7 @@ open class RabbitRestClient(brokerAddress: String, brokerUsername: String, broke
         expect(requestBuilder.request(PATH_PERMISSIONS_SINGLE, of(
                 "vhost", vhost,
                 "user", user)).put(entity(gson.toJson(permissionsData), MediaType.APPLICATION_JSON_TYPE)),
-                Status.NO_CONTENT.statusCode)
+                Status.CREATED.statusCode)
     }
 
     @Throws(RestClientException::class)
@@ -148,7 +148,7 @@ open class RabbitRestClient(brokerAddress: String, brokerUsername: String, broke
         expect(requestBuilder.nextWithAuthentication(user, pass).request(PATH_EXCHANGES_SINGLE, of(
                 "vhost", vhost,
                 "exchange", exchange)).put(entity(gson.toJson(exchangeData), MediaType.APPLICATION_JSON_TYPE)),
-                Status.NO_CONTENT.statusCode)
+                Status.CREATED.statusCode)
     }
 
     @Throws(RestClientException::class)
@@ -163,7 +163,7 @@ open class RabbitRestClient(brokerAddress: String, brokerUsername: String, broke
                         "queue", queue))
                 .put(entity(gson.toJson(queueData),
                         MediaType.APPLICATION_JSON_TYPE)),
-                Status.NO_CONTENT.statusCode)
+                Status.CREATED.statusCode)
     }
 
     @Throws(RestClientException::class)

@@ -13,7 +13,7 @@ import java.io.IOException
 import java.util.Properties
 
 @RunWith(JunitSuiteRunner::class)
-public class ApplyAndVerifyEndToEndTest {
+class ApplyAndVerifyEndToEndTest {
     init {
         val properties = object : Properties() {
             init {

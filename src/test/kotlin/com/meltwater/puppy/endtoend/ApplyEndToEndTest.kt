@@ -58,7 +58,7 @@ class ApplyEndToEndTest {
             }
 
             it.should("creates vhost") { expect ->
-                val map = gson.fromJson<Map<Any, Any>>(getString(req, PATH_VHOSTS_SINGLE, of(
+                val map = gson.fromJson<Map<*, *>>(getString(req, PATH_VHOSTS_SINGLE, of(
                         "vhost", VHOST)),
                         Map::class.java)
 
@@ -66,7 +66,7 @@ class ApplyEndToEndTest {
             }
 
             it.should("creates user") { expect ->
-                val map = gson.fromJson<Map<Any, Any>>(getString(req, PATH_USERS_SINGLE, of(
+                val map = gson.fromJson<Map<*, *>>(getString(req, PATH_USERS_SINGLE, of(
                         "user", "test_dan")),
                         Map::class.java)
 
@@ -74,7 +74,7 @@ class ApplyEndToEndTest {
             }
 
             it.should("creates permissions") { expect ->
-                val map = gson.fromJson<Map<Any, Any>>(getString(req, PATH_PERMISSIONS_SINGLE, of(
+                val map = gson.fromJson<Map<*, *>>(getString(req, PATH_PERMISSIONS_SINGLE, of(
                         "vhost", VHOST,
                         "user", "test_dan")),
                         Map::class.java)
@@ -85,7 +85,7 @@ class ApplyEndToEndTest {
             }
 
             it.should("creates exchange 'exchange.in@test'") { expect ->
-                val map = gson.fromJson<Map<Any, Any>>(getString(
+                val map = gson.fromJson<Map<*, *>>(getString(
                         req.nextWithAuthentication("test_dan", "torrance"),
                         PATH_EXCHANGES_SINGLE,
                         of(
@@ -97,12 +97,12 @@ class ApplyEndToEndTest {
                         .and(map["durable"]).`is`(false)
                         .and(map["auto_delete"]).`is`(true)
                         .and(map["internal"]).`is`(true)
-                        .and((map["arguments"] as Map<Any, Any>).size).`is`(1)
-                        .and((map["arguments"] as Map<Any, Any>)["hash-header"]).`is`("abc")
+                        .and((map["arguments"] as Map<*, *>).size).`is`(1)
+                        .and((map["arguments"] as Map<*, *>)["hash-header"]).`is`("abc")
             }
 
             it.should("creates exchange 'exchange.out@test'") { expect ->
-                val map = gson.fromJson<Map<Any, Any>>(getString(
+                val map = gson.fromJson<Map<*, *>>(getString(
                         req.nextWithAuthentication("test_dan", "torrance"),
                         PATH_EXCHANGES_SINGLE,
                         of(
@@ -114,11 +114,11 @@ class ApplyEndToEndTest {
                         .and(map["durable"]).`is`(true)
                         .and(map["auto_delete"]).`is`(false)
                         .and(map["internal"]).`is`(false)
-                        .and((map["arguments"] as Map<Any, Any>).size).`is`(0)
+                        .and((map["arguments"] as Map<*, *>).size).`is`(0)
             }
 
             it.should("creates queue") { expect ->
-                val map: Map<Any, Any> = gson.fromJson<Map<Any, Any>>(getString(
+                val map: Map<*, *> = gson.fromJson<Map<*, *>>(getString(
                         req.nextWithAuthentication("test_dan", "torrance"),
                         PATH_QUEUES_SINGLE,
                         of(
@@ -128,8 +128,8 @@ class ApplyEndToEndTest {
 
                 expect.that(map["durable"]).`is`(false)
                         .and(map["auto_delete"]).`is`(true)
-                        .and((map["arguments"] as Map<Any, Any>).size).`is`(1)
-                        .and((map["arguments"] as Map<Any, Any>)["x-message-ttl"]).isIn(123, 123.0)
+                        .and((map["arguments"] as Map<*, *>).size).`is`(1)
+                        .and((map["arguments"] as Map<*, *>)["x-message-ttl"]).isIn(123, 123.0)
             }
 
             it.should("creates binding to queue") { expect ->
@@ -140,11 +140,11 @@ class ApplyEndToEndTest {
                                 "exchange", "exchange.in",
                                 "to", "queue-test",
                                 "vhost", VHOST)),
-                        List::class.java)[0] as Map<Any, Any>
+                        List::class.java)[0] as Map<*, *>
 
                 expect.that(map["routing_key"]).`is`("route-queue")
-                        .and((map["arguments"] as Map<Any, Any>).size).`is`(1)
-                        .and((map["arguments"] as Map<Any, Any>)["foo"]).`is`("bar")
+                        .and((map["arguments"] as Map<*, *>).size).`is`(1)
+                        .and((map["arguments"] as Map<*, *>)["foo"]).`is`("bar")
             }
 
             it.should("creates binding to exchange") { expect ->
@@ -155,11 +155,11 @@ class ApplyEndToEndTest {
                                 "exchange", "exchange.in",
                                 "to", "exchange.out",
                                 "vhost", VHOST)),
-                        List::class.java)[0] as Map<Any, Any>
+                        List::class.java)[0] as Map<*, *>
 
                 expect.that(map["routing_key"]).`is`("route-exchange")
-                        .and((map["arguments"] as Map<Any, Any>).size).`is`(1)
-                        .and((map["arguments"] as Map<Any, Any>)["cat"]).`is`("dog")
+                        .and((map["arguments"] as Map<*, *>).size).`is`(1)
+                        .and((map["arguments"] as Map<*, *>)["cat"]).`is`("dog")
             }
         }
     }
