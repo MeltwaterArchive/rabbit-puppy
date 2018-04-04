@@ -1,6 +1,7 @@
 # rabbit-puppy Release Notes
 ## next
 ### Changes
+- Uploads artifacts to meltwater.jfrog.io
 - Uses amqp-client 3.6.6 and kotlin 1.2.31
 - Updated some more dependencies and maven plugin versions
 - Fixed failng tests bu changing NO_CONTENT to CREATED http codes
