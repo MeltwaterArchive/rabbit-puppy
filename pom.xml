@@ -10,7 +10,7 @@
     <version>0.4.0</version>
 
     <properties>
-        <docker.build.version>latest</docker.build.version>
+        <docker.build.version>0.4.0</docker.build.version>
         <slf4j.version>1.6.4</slf4j.version>
         <logback.version>1.0.1</logback.version>
         <kotlin.version>1.2.31</kotlin.version>
