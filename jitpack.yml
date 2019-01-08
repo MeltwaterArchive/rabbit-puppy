@@ -1,2 +1,2 @@
 install:
-   - mvn package
+   - mvn clean install -DskipTests -Ddocker.skip
