@@ -88,7 +88,6 @@
     </dependencies>
 
 
-    <!-- TODO upload releases to jcenter instead of artifactory and/or sync to jcenter -->
     <distributionManagement>
         <repository>
             <id>central</id>
