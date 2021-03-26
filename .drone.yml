@@ -1,0 +1,26 @@
+---
+kind: pipeline
+name: default
+
+platform:
+  os: linux
+  arch: amd64
+
+workspace:
+  base: /workdir
+
+steps:
+  - name: mavenBuildDev
+    pull: always
+    image: meltwaterfoundation/drone-maven-jdk8
+    commands:
+      - echo 'Build and test.'
+      - mvn -U -B clean install
+    environment:
+      ARTIFACTORY_PASSWORD:
+        from_secret: artifactory_password
+      ARTIFACTORY_USERNAME:
+        from_secret: artifactory_username
+    when:
+      event:
+        - push
