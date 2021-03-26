@@ -22,6 +22,9 @@ steps:
         from_secret: artifactory_password
       ARTIFACTORY_USERNAME:
         from_secret: artifactory_username
+    volumes:
+      - name: docker-sock
+        path: /var/run/docker.sock
     when:
       event:
         - push
