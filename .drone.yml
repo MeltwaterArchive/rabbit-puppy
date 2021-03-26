@@ -9,7 +9,7 @@ steps:
     image: meltwaterfoundation/drone-maven-jdk8
     commands:
       - echo 'Build and test.'
-      - mvn -U -B clean install
+      - mvn -U -B clean package
     environment:
       ARTIFACTORY_PASSWORD:
         from_secret: artifactory_password
