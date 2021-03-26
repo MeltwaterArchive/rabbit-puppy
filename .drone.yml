@@ -1,5 +1,6 @@
 ---
 kind: pipeline
+type: docker
 name: default
 
 platform:
@@ -15,7 +16,7 @@ steps:
     image: meltwaterfoundation/drone-maven-jdk8
     commands:
       - echo 'Build and test.'
-      - mvn -U -B clean install
+      - mvn -U -B clean package
     environment:
       ARTIFACTORY_PASSWORD:
         from_secret: artifactory_password
@@ -24,4 +25,8 @@ steps:
     when:
       event:
         - push
-        -
+
+volumes:
+  - name: docker-sock
+    host:
+      path: /var/run/docker.sock
